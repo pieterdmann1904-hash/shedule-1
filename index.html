@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MISCHSTATION // Rezeptur-Rechner</title>
+<title>MIXING STATION // Recipe Calculator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -106,6 +106,40 @@
   .ing-btn .eff{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-transform:uppercase;}
   .ing-btn .cost{font-family:var(--mono); font-size:12px; color:var(--amber);}
   .ing-btn .plus{color:var(--toxic); font-family:var(--mono); font-weight:700; font-size:15px;}
+  .ing-btn:disabled{opacity:0.35; cursor:not-allowed;}
+  .ing-btn:disabled:hover{border-color:var(--line); transform:none;}
+
+  /* ===== Mode tabs ===== */
+  .mode-tabs{display:flex; gap:4px; margin-bottom:18px; border:1px solid var(--line); padding:3px; border-radius:3px;}
+  .mode-tab{
+    flex:1; background:none; border:none; color:var(--text-dim); font-family:var(--mono); font-size:10.5px;
+    letter-spacing:0.06em; text-transform:uppercase; padding:9px 6px; cursor:pointer; border-radius:2px; transition:all .12s;
+  }
+  .mode-tab:hover{color:var(--text);}
+  .mode-tab.active{background:var(--toxic); color:#10130f; font-weight:700;}
+
+  /* ===== Optimizer panel ===== */
+  .opt-field{margin-bottom:18px;}
+  .opt-label{font-family:var(--mono); font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; display:flex; justify-content:space-between;}
+  .opt-label .val{color:var(--toxic);}
+  select.opt-select{
+    width:100%; background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; font-family:var(--body); font-size:13.5px; border-radius:2px; cursor:pointer;
+  }
+  select.opt-select:focus{outline:1px solid var(--toxic);}
+  input[type="range"].opt-range{
+    width:100%; accent-color:var(--toxic); background:transparent; cursor:pointer;
+  }
+  .unlocked-preview{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;}
+  .u-chip{font-family:var(--mono); font-size:10.5px; padding:5px 9px; border:1px solid var(--toxic-dim); color:var(--toxic); border-radius:20px; background:rgba(159,232,48,0.06);}
+  .u-chip.locked{border-color:var(--line); color:var(--text-dim); text-decoration:line-through; background:none;}
+  .btn-primary{
+    width:100%; background:var(--toxic); border:1px solid var(--toxic); color:#10130f; padding:13px 16px;
+    font-family:var(--mono); font-weight:700; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+    cursor:pointer; border-radius:2px; margin-top:6px; transition:all .12s;
+  }
+  .btn-primary:hover{background:#b6f052; box-shadow:0 0 20px rgba(159,232,48,0.3);}
+  .opt-hint{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); line-height:1.6; margin-top:16px; padding-top:16px; border-top:1px solid var(--line);}
 
   /* ===== Mix sequence (middle) ===== */
   .seq-empty{
@@ -159,12 +193,14 @@
     color:var(--toxic); border-radius:20px; background:rgba(159,232,48,0.06); white-space:nowrap;
   }
   .chip .mult{color:var(--text-dim); margin-left:6px;}
+  .chip .add{color:var(--danger); margin-left:6px;}
   .chip.zero{border-color:var(--line); color:var(--text-dim); background:none;}
   .cap-note{margin-top:14px; font-family:var(--mono); font-size:10.5px; color:var(--amber);}
 
   .addiction-bar-wrap{margin-top:22px;}
   .addiction-bar{height:8px; background:var(--panel-2); border:1px solid var(--line); border-radius:4px; overflow:hidden; margin-top:8px;}
   .addiction-fill{height:100%; background:linear-gradient(90deg, var(--toxic), var(--amber), var(--danger)); transition:width .2s;}
+  .addiction-note{font-family:var(--mono); font-size:10px; color:var(--text-dim); margin-top:6px; line-height:1.5;}
 
   footer{
     text-align:center; padding:40px 20px 10px; color:var(--text-dim); font-family:var(--mono); font-size:10.5px; letter-spacing:0.05em;
@@ -182,60 +218,82 @@
 
 <header>
   <div>
-    <div class="brand-eyebrow">Mischstation · Online-Simulator</div>
-    <h1>MISCH<span>RECHNER</span></h1>
-    <p class="subtitle">Teste Rezepturen, bevor du Zutaten im Spiel verschwendest. Basisprodukt wählen, Zutaten der Reihe nach hinzufügen, Effekte, Verkaufspreis und Profit live ablesen.</p>
+    <div class="brand-eyebrow">Mixing Station · Online Simulator</div>
+    <h1>MIX<span>CALC</span></h1>
+    <p class="subtitle">Test recipes before you waste ingredients in-game. Pick a base product, add ingredients in order, and read effects, sell price, profit and addiction live.</p>
   </div>
   <div class="disclaimer">
-    <b>Fan-Projekt.</b> Inoffizielles, von der Community erstelltes Tool, inspiriert vom Spiel „Schedule I". Nicht mit den Entwicklern verbunden. Werte sind Näherungen der Community-Daten und können vom Spiel abweichen.
+    <b>Fan project.</b> Unofficial, community-built tool inspired by the game "Schedule I". Not affiliated with the developers. Values are approximations based on community data and may differ from the actual game.
   </div>
 </header>
 
 <main>
   <!-- LEFT: base product + ingredients -->
   <div class="col">
-    <div class="col-title">Basisprodukt</div>
+    <div class="col-title">Base Product</div>
     <div class="product-list" id="productList"></div>
 
-    <div class="col-title">Zutaten <span class="n" id="ingCount"></span></div>
-    <div class="ingredient-grid" id="ingredientList"></div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tabManual">Pick Ingredients</button>
+      <button class="mode-tab" id="tabOptimizer">Profit Maximizer</button>
+    </div>
+
+    <div id="manualPanel">
+      <div class="col-title">Ingredients <span class="n" id="ingCount"></span></div>
+      <div class="ingredient-grid" id="ingredientList"></div>
+    </div>
+
+    <div id="optimizerPanel" style="display:none;">
+      <div class="opt-field">
+        <div class="opt-label">Your Level <span class="val" id="levelLabel"></span></div>
+        <select class="opt-select" id="levelSelect"></select>
+        <div class="unlocked-preview" id="unlockedPreview"></div>
+      </div>
+      <div class="opt-field">
+        <div class="opt-label">Ingredient Count <span class="val" id="countLabel">6</span></div>
+        <input type="range" class="opt-range" id="countRange" min="1" max="10" value="6" step="1">
+      </div>
+      <button class="btn-primary" id="optimizeBtn">⚡ Calculate Best Recipe</button>
+      <div class="opt-hint">Step by step, this searches your unlocked ingredients for whichever one boosts profit the most for the selected base product (greedy optimization — the same ingredient can be picked more than once). The result appears in the mix sequence and can be tweaked further from there.</div>
+    </div>
   </div>
 
   <!-- MIDDLE: sequence + trace -->
   <div class="col">
-    <div class="col-title">Rezeptur-Reihenfolge</div>
+    <div class="col-title">Mix Sequence</div>
     <div id="seqWrap">
-      <div class="seq-empty">Noch keine Zutaten hinzugefügt.<br>Klicke links auf eine Zutat, um sie in dieser Reihenfolge in die Mischung zu geben.</div>
+      <div class="seq-empty">No ingredients added yet.<br>Click an ingredient on the left to add it to the mix in that order.</div>
     </div>
     <div class="actions-row">
-      <button class="btn-reset" id="resetBtn">↺ Mischung zurücksetzen</button>
-      <button class="btn-reset" id="undoBtn">← Letzten Schritt entfernen</button>
+      <button class="btn-reset" id="resetBtn">↺ Reset Mix</button>
+      <button class="btn-reset" id="undoBtn">← Remove Last Step</button>
     </div>
     <div id="traceWrap"></div>
   </div>
 
   <!-- RIGHT: readout -->
   <div class="col">
-    <div class="col-title">Analyse-Ergebnis</div>
+    <div class="col-title">Result Analysis</div>
     <div class="readout">
-      <div class="ro-row"><span class="ro-label">Herstellungskosten</span><span class="ro-value" id="roCost">$0</span></div>
-      <div class="ro-row"><span class="ro-label">Verkaufspreis</span><span class="ro-value sell" id="roSell">$0</span></div>
-      <div class="ro-row"><span class="ro-label">Profit / Einheit</span><span class="ro-value profit" id="roProfit">$0</span></div>
+      <div class="ro-row"><span class="ro-label">Production Cost</span><span class="ro-value" id="roCost">$0</span></div>
+      <div class="ro-row"><span class="ro-label">Sell Price</span><span class="ro-value sell" id="roSell">$0</span></div>
+      <div class="ro-row"><span class="ro-label">Profit / Unit</span><span class="ro-value profit" id="roProfit">$0</span></div>
     </div>
 
-    <div class="effects-title">Effekte <span id="effCount" style="color:var(--text-dim)"></span></div>
+    <div class="effects-title">Effects <span id="effCount" style="color:var(--text-dim)"></span></div>
     <div class="effect-chips" id="effectChips"></div>
-    <div class="cap-note" id="capNote" style="display:none;">⚠ Obergrenze von 8 Effekten erreicht — weitere Standard-Effekte werden verworfen (Transformationen wirken trotzdem weiter).</div>
+    <div class="cap-note" id="capNote" style="display:none;">⚠ 8-effect cap reached — further default effects are dropped (transformations still apply).</div>
 
     <div class="addiction-bar-wrap">
-      <div class="ro-row" style="border:none; padding:0;"><span class="ro-label">Suchtwert</span><span class="ro-value" id="roAddict" style="font-size:16px;">0%</span></div>
+      <div class="ro-row" style="border:none; padding:0;"><span class="ro-label">Addictiveness</span><span class="ro-value" id="roAddict" style="font-size:16px;">0%</span></div>
       <div class="addiction-bar"><div class="addiction-fill" id="addictFill" style="width:0%"></div></div>
+      <div class="addiction-note">How addicted a customer gets from this product. Each effect chip above shows its own ☠ contribution to this total.</div>
     </div>
   </div>
 </main>
 
 <footer>
-  MISCHRECHNER — inoffizielles Fan-Tool · Effekt- und Preisdaten basieren auf öffentlich dokumentierten Community-Erkenntnissen zu „Schedule I" und dienen nur zur Orientierung.
+  MIXCALC — unofficial fan tool · Effect and price data is based on publicly documented community findings about "Schedule I" and is for reference only.
 </footer>
 
 <script>
@@ -292,46 +350,70 @@ const PRODUCTS = [
 
 // Ingredients: default effect + transformation rules (existingEffect -> newEffect)
 // Rules run first (all at once against current mix state), default effect added after, if room & not present.
+// "unlock" = the rank level (see RANKS) at which the ingredient becomes available.
 const INGREDIENTS = [
-  {id:"cuke",   name:"Cuke",          cost:2, def:"Energizing",
+  {id:"cuke",   name:"Cuke",          cost:2, def:"Energizing",   unlock:1,
     rules:{"Euphoric":"Laxative","Foggy":"Cyclopean","Munchies":"Athletic","Slippery":"Munchies","Sneaky":"Paranoia","Toxic":"Euphoric"}},
-  {id:"banana", name:"Banana",        cost:2, def:"Gingeritis",
-    rules:{"Calming":"Sneaky","Toxic":"Smelly","Long Faced":"Refreshing","Focused":"Seizure-Inducing","Cyclopean":"Energizing","Paranoia":"Jennerising"}},
-  {id:"para",   name:"Paracetamol",   cost:3, def:"Sneaky",
-    rules:{"Energizing":"Paranoia","Calming":"Slippery","Toxic":"Tropic Thunder","Spicy":"Bright-Eyed","Glowing":"Toxic","Foggy":"Calming","Munchies":"Anti-Gravity","Electrifying":"Athletic"}},
-  {id:"donut",  name:"Donut",         cost:3, def:"Calorie-Dense",
+  {id:"donut",  name:"Donut",         cost:3, def:"Calorie-Dense",unlock:1,
     rules:{"Anti-Gravity":"Slippery","Balding":"Sneaky","Focused":"Euphoric","Jennerising":"Gingeritis","Munchies":"Calming","Shrinking":"Energizing"}},
-  {id:"viagra", name:"Viagra",        cost:4, def:"Tropic Thunder",
+  {id:"viagra", name:"Viagra",        cost:4, def:"Tropic Thunder",unlock:2,
     rules:{"Athletic":"Sneaky","Disorienting":"Toxic","Euphoric":"Bright-Eyed","Laxative":"Calming"}},
-  {id:"mwash",  name:"Mouth Wash",    cost:4, def:"Balding",
+  {id:"mwash",  name:"Mouth Wash",    cost:4, def:"Balding",      unlock:3,
     rules:{"Calming":"Anti-Gravity","Calorie-Dense":"Sneaky","Explosive":"Sedating","Focused":"Jennerising","Munchies":"Anti-Gravity"}},
-  {id:"flu",    name:"Flu Medicine",  cost:5, def:"Sedating",
-    rules:{"Calming":"Bright-Eyed","Athletic":"Munchies","Thought-Provoking":"Gingeritis","Cyclopean":"Foggy","Focused":"Calming","Euphoric":"Toxic","Zombifying":"Zombifying"}},
-  {id:"gas",    name:"Gasoline",      cost:5, def:"Toxic",
+  {id:"flu",    name:"Flu Medicine",  cost:5, def:"Sedating",     unlock:4,
+    rules:{"Calming":"Bright-Eyed","Athletic":"Munchies","Thought-Provoking":"Gingeritis","Cyclopean":"Foggy","Focused":"Calming","Euphoric":"Toxic"}},
+  {id:"banana", name:"Banana",        cost:2, def:"Gingeritis",   unlock:5,
+    rules:{"Calming":"Sneaky","Toxic":"Smelly","Long Faced":"Refreshing","Focused":"Seizure-Inducing","Cyclopean":"Energizing","Paranoia":"Jennerising"}},
+  {id:"gas",    name:"Gasoline",      cost:5, def:"Toxic",        unlock:5,
     rules:{"Energizing":"Euphoric","Gingeritis":"Smelly","Jennerising":"Sneaky","Paranoia":"Toxic","Electrifying":"Disorienting","Euphoric":"Energizing","Munchies":"Sedating","Shrinking":"Focused","Disorienting":"Glowing"}},
-  {id:"energy", name:"Energy Drink",  cost:6, def:"Athletic",
+  {id:"energy", name:"Energy Drink",  cost:6, def:"Athletic",     unlock:6,
     rules:{"Sedating":"Athletic","Disorienting":"Electrifying","Focused":"Shrinking","Euphoric":"Energizing","Foggy":"Laxative","Glowing":"Disorienting","Schizophrenia":"Balding","Tropic Thunder":"Focused"}},
-  {id:"oil",    name:"Motor Oil",     cost:6, def:"Slippery",
+  {id:"para",   name:"Paracetamol",   cost:3, def:"Sneaky",       unlock:7,
+    rules:{"Energizing":"Paranoia","Calming":"Slippery","Toxic":"Tropic Thunder","Spicy":"Bright-Eyed","Glowing":"Toxic","Foggy":"Calming","Munchies":"Anti-Gravity","Electrifying":"Athletic"}},
+  {id:"oil",    name:"Motor Oil",     cost:6, def:"Slippery",     unlock:8,
     rules:{"Energizing":"Munchies","Foggy":"Toxic","Euphoric":"Munchies","Paranoia":"Anti-Gravity"}},
-  {id:"bean",   name:"Mega Bean",     cost:7, def:"Foggy",
+  {id:"bean",   name:"Mega Bean",     cost:7, def:"Foggy",        unlock:9,
     rules:{"Energizing":"Cyclopean","Focused":"Disorienting","Sneaky":"Energizing","Calming":"Glowing","Thought-Provoking":"Energizing","Seizure-Inducing":"Focused","Athletic":"Laxative"}},
-  {id:"chili",  name:"Chili",         cost:7, def:"Spicy",
+  {id:"chili",  name:"Chili",         cost:7, def:"Spicy",        unlock:10,
     rules:{"Sneaky":"Bright-Eyed","Athletic":"Euphoric","Munchies":"Toxic","Laxative":"Long Faced","Shrinking":"Refreshing"}},
-  {id:"battery",name:"Battery",       cost:8, def:"Bright-Eyed",
+  {id:"battery",name:"Battery",       cost:8, def:"Bright-Eyed",  unlock:10,
     rules:{"Munchies":"Tropic Thunder","Euphoric":"Zombifying","Electrifying":"Euphoric","Cyclopean":"Glowing","Shrinking":"Munchies","Disorienting":"Electrifying"}},
-  {id:"iodine", name:"Iodine",        cost:8, def:"Jennerising",
+  {id:"iodine", name:"Iodine",        cost:8, def:"Jennerising",  unlock:11,
     rules:{"Calming":"Balding","Toxic":"Sneaky","Foggy":"Sneaky","Euphoric":"Seizure-Inducing","Refreshing":"Thought-Provoking"}},
-  {id:"addy",   name:"Addy",          cost:9, def:"Thought-Provoking",
+  {id:"addy",   name:"Addy",          cost:9, def:"Thought-Provoking",unlock:12,
     rules:{"Sedating":"Electrifying","Glowing":"Refreshing","Foggy":"Energizing","Explosive":"Euphoric","Long Faced":"Electrifying"}},
-  {id:"horse",  name:"Horse Semen",   cost:9, def:"Long Faced",
+  {id:"horse",  name:"Horse Semen",   cost:9, def:"Long Faced",   unlock:13,
     rules:{"Anti-Gravity":"Calming","Gingeritis":"Refreshing","Thought-Provoking":"Electrifying","Munchies":"Long Faced"}},
 ];
 
 const MAX_EFFECTS = 8;
 
+// Full rank list (11 groups of five tiers, plus open-ended Kingpin).
+// All 16 mixing ingredients are unlocked by Peddler III — higher ranks are included
+// for completeness so you can select your true in-game level.
+function buildRanks(){
+  const groups = ["Street Rat","Hoodlum","Peddler","Hustler","Bagman","Enforcer","Shot Caller","Block Boss","Underlord","Baron"];
+  const numerals = ["I","II","III","IV","V"];
+  const ranks = [];
+  let level = 1;
+  groups.forEach(group => {
+    numerals.forEach(num => {
+      ranks.push({level, label:`${group} ${num}`});
+      level++;
+    });
+  });
+  ranks.push({level, label:"Kingpin"});
+  return ranks;
+}
+const RANKS = buildRanks();
+const MAX_RANK_LEVEL = RANKS[RANKS.length-1].level;
+
 /* ============ STATE ============ */
 let selectedProductId = PRODUCTS[0].id;
 let sequence = []; // array of ingredient ids in order
+let mode = 'manual'; // 'manual' | 'optimizer'
+let playerLevel = MAX_RANK_LEVEL; // default: everything unlocked
+let ingredientCount = 6;
 
 /* ============ CALCULATION ============ */
 function computeMix(){
@@ -347,7 +429,7 @@ function computeMix(){
     const newEffects = effects.map(eff => {
       const target = ing.rules[eff];
       if (target && target !== eff && !effects.includes(target)){
-        transformations.push(`${eff} → ${target}`);
+        transformations.push(`${eff} -> ${target}`);
         return target;
       }
       return eff;
@@ -381,6 +463,48 @@ function computeMix(){
   return {product, effects, cost, sell, profit, addiction, trace};
 }
 
+/* ============ OPTIMIZER ============ */
+function unlockedIngredients(level){
+  return INGREDIENTS.filter(i => i.unlock <= level);
+}
+
+function greedyOptimize(product, unlocked, count){
+  let seq = [];
+  for (let step = 0; step < count; step++){
+    let best = null, bestProfit = -Infinity;
+    unlocked.forEach(ing => {
+      const trialSeq = [...seq, ing.id];
+      const result = simulateSequence(product, trialSeq);
+      if (result.profit > bestProfit){
+        bestProfit = result.profit;
+        best = ing.id;
+      }
+    });
+    if (best === null) break;
+    seq.push(best);
+  }
+  return seq;
+}
+
+// lightweight version of computeMix that only needs cost/sell/profit for a given sequence
+function simulateSequence(product, seq){
+  let effects = [...product.baseEffects];
+  seq.forEach(ingId => {
+    const ing = INGREDIENTS.find(i=>i.id===ingId);
+    const newEffects = effects.map(eff => {
+      const target = ing.rules[eff];
+      if (target && target !== eff && !effects.includes(target)) return target;
+      return eff;
+    });
+    effects = [...new Set(newEffects)];
+    if (effects.length < MAX_EFFECTS && !effects.includes(ing.def)) effects.push(ing.def);
+  });
+  const cost = seq.reduce((sum, id) => sum + INGREDIENTS.find(i=>i.id===id).cost, 0);
+  const multSum = effects.reduce((sum, e) => sum + (EFFECTS[e]?.mult || 0), 0);
+  const sell = Math.round(product.price * (1 + multSum));
+  return {cost, sell, profit: sell - cost};
+}
+
 /* ============ RENDER ============ */
 function renderProducts(){
   const wrap = document.getElementById('productList');
@@ -410,7 +534,8 @@ function renderIngredients(){
 function renderSequence(mix){
   const wrap = document.getElementById('seqWrap');
   if (sequence.length === 0){
-    wrap.innerHTML = '<div class="seq-empty">Noch keine Zutaten hinzugefügt.<br>Klicke links auf eine Zutat, um sie in dieser Reihenfolge in die Mischung zu geben.</div>';
+    wrap.innerHTML = '<div class="seq-empty">No ingredients added yet.<br>Click an ingredient on the left to add it to the mix in that order.</div>';
+    document.getElementById('traceWrap').innerHTML = '';
     return;
   }
   wrap.innerHTML = '<div class="seq-list"></div>';
@@ -427,16 +552,16 @@ function renderSequence(mix){
   // trace
   const traceWrap = document.getElementById('traceWrap');
   if (mix.trace.some(t => t.transformations.length || t.capped)){
-    let html = '<div class="trace-title">Reaktionsverlauf</div><div class="trace">';
+    let html = '<div class="trace-title">Reaction Log</div><div class="trace">';
     mix.trace.forEach(t => {
       let line = `<div class="trace-row"><b>${String(t.step).padStart(2,'0')} · ${t.name}</b><br>`;
       if (t.transformations.length){
         line += t.transformations.map(x => `<span class="tf">${x}</span>`).join('<br>') + '<br>';
       } else {
-        line += '<span>keine Transformation</span><br>';
+        line += '<span>no transformation</span><br>';
       }
-      if (t.added) line += `+ ${t.added} hinzugefügt`;
-      if (t.capped) line += `⚠ ${t.capped} verworfen (voll)`;
+      if (t.added) line += `+ ${t.added} added`;
+      if (t.capped) line += `⚠ ${t.capped} dropped (mix full)`;
       line += '</div>';
       html += line;
     });
@@ -458,13 +583,14 @@ function renderReadout(mix){
   const chipsWrap = document.getElementById('effectChips');
   chipsWrap.innerHTML = '';
   if (mix.effects.length === 0){
-    chipsWrap.innerHTML = '<span style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">Keine Effekte</span>';
+    chipsWrap.innerHTML = '<span style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">No effects</span>';
   } else {
     mix.effects.forEach(e => {
       const m = EFFECTS[e]?.mult || 0;
+      const a = EFFECTS[e]?.add || 0;
       const chip = document.createElement('span');
       chip.className = 'chip' + (m===0 ? ' zero' : '');
-      chip.innerHTML = `${e}<span class="mult">+${Math.round(m*100)}%</span>`;
+      chip.innerHTML = `${e}<span class="mult">+${Math.round(m*100)}%</span><span class="add">☠ ${Math.round(a*100)}%</span>`;
       chipsWrap.appendChild(chip);
     });
   }
@@ -474,12 +600,65 @@ function renderReadout(mix){
   document.getElementById('addictFill').style.width = `${mix.addiction}%`;
 }
 
+function renderOptimizerPanel(){
+  // level select (build once, then just sync value)
+  const levelSelect = document.getElementById('levelSelect');
+  if (levelSelect.options.length === 0){
+    RANKS.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.level;
+      opt.textContent = `Level ${r.level} — ${r.label}`;
+      levelSelect.appendChild(opt);
+    });
+    levelSelect.onchange = () => { playerLevel = parseInt(levelSelect.value, 10); renderOptimizerPanel(); };
+  }
+  levelSelect.value = playerLevel;
+  document.getElementById('levelLabel').textContent = RANKS.find(r=>r.level===playerLevel)?.label || '';
+
+  // unlocked preview
+  const preview = document.getElementById('unlockedPreview');
+  preview.innerHTML = '';
+  INGREDIENTS.forEach(ing => {
+    const chip = document.createElement('span');
+    const locked = ing.unlock > playerLevel;
+    chip.className = 'u-chip' + (locked ? ' locked' : '');
+    chip.textContent = locked ? `${ing.name} 🔒` : ing.name;
+    preview.appendChild(chip);
+  });
+
+  // count range
+  const countRange = document.getElementById('countRange');
+  countRange.value = ingredientCount;
+  document.getElementById('countLabel').textContent = ingredientCount;
+  countRange.oninput = () => { ingredientCount = parseInt(countRange.value, 10); document.getElementById('countLabel').textContent = ingredientCount; };
+}
+
+function switchMode(newMode){
+  mode = newMode;
+  document.getElementById('tabManual').classList.toggle('active', mode==='manual');
+  document.getElementById('tabOptimizer').classList.toggle('active', mode==='optimizer');
+  document.getElementById('manualPanel').style.display = mode==='manual' ? 'block' : 'none';
+  document.getElementById('optimizerPanel').style.display = mode==='optimizer' ? 'block' : 'none';
+  if (mode==='optimizer') renderOptimizerPanel();
+}
+
+document.getElementById('tabManual').onclick = () => switchMode('manual');
+document.getElementById('tabOptimizer').onclick = () => switchMode('optimizer');
+
+document.getElementById('optimizeBtn').onclick = () => {
+  const product = PRODUCTS.find(p=>p.id===selectedProductId);
+  const unlocked = unlockedIngredients(playerLevel);
+  sequence = greedyOptimize(product, unlocked, ingredientCount);
+  render();
+};
+
 function render(){
   const mix = computeMix();
   renderProducts();
   renderIngredients();
   renderSequence(mix);
   renderReadout(mix);
+  if (mode==='optimizer') renderOptimizerPanel();
 }
 
 document.getElementById('resetBtn').onclick = () => { sequence = []; render(); };
