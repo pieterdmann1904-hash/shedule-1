@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISCHSTATION // Rezeptur-Rechner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10130f;
+    --panel: #171b15;
+    --panel-2: #1d221a;
+    --line: #2b3226;
+    --toxic: #9fe830;
+    --toxic-dim: #6b9c22;
+    --amber: #f2a93b;
+    --danger: #e85b4a;
+    --text: #e9ecdf;
+    --text-dim: #8c9484;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Oswald', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(159,232,48,0.05), transparent 40%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 8px),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  ::selection{background:var(--toxic); color:#10130f;}
+
+  /* ===== Header / hazard bar ===== */
+  .hazard-bar{
+    height:10px;
+    background:repeating-linear-gradient(45deg, var(--amber), var(--amber) 14px, #1a1a1a 14px, #1a1a1a 28px);
+    opacity:0.85;
+  }
+  header{
+    padding:34px 5vw 26px;
+    border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.25em; color:var(--toxic);
+    text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px;
+  }
+  .brand-eyebrow::before{content:''; width:7px; height:7px; background:var(--toxic); border-radius:50%; box-shadow:0 0 8px var(--toxic); animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:0.25}}
+  h1{
+    font-family:var(--display); font-weight:700; font-size:clamp(32px,5vw,54px);
+    text-transform:uppercase; letter-spacing:0.01em; line-height:0.95;
+  }
+  h1 span{color:var(--toxic);}
+  .subtitle{color:var(--text-dim); font-size:14px; max-width:460px; margin-top:10px; line-height:1.5;}
+  .disclaimer{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-align:right;
+    border:1px solid var(--line); padding:10px 14px; max-width:260px; line-height:1.6;
+  }
+  .disclaimer b{color:var(--amber);}
+
+  /* ===== Layout ===== */
+  main{
+    display:grid;
+    grid-template-columns: 300px 1fr 340px;
+    gap:1px;
+    background:var(--line);
+    margin:1px 0;
+  }
+  @media (max-width:1080px){ main{grid-template-columns:1fr;} }
+  .col{background:var(--bg); padding:26px;}
+  .col-title{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .col-title .n{color:var(--toxic);}
+
+  /* ===== Base product select ===== */
+  .product-list{display:flex; flex-direction:column; gap:6px; margin-bottom:30px;}
+  .product-btn{
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:12px 14px; text-align:left; cursor:pointer; font-family:var(--body); font-size:14px;
+    display:flex; justify-content:space-between; align-items:center; transition:all .12s;
+    border-radius:2px;
+  }
+  .product-btn:hover{border-color:var(--toxic-dim);}
+  .product-btn.active{background:var(--panel-2); border-color:var(--toxic); box-shadow:inset 3px 0 0 var(--toxic);}
+  .product-btn .price{font-family:var(--mono); color:var(--text-dim); font-size:12px;}
+  .product-btn.active .price{color:var(--toxic);}
+
+  /* ===== Ingredients ===== */
+  .ingredient-grid{display:flex; flex-direction:column; gap:5px;}
+  .ing-btn{
+    background:var(--panel); border:1px solid var(--line); color:var(--text);
+    padding:10px 12px; text-align:left; cursor:pointer; font-size:13.5px;
+    display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center;
+    font-family:var(--body); border-radius:2px; transition:all .1s;
+  }
+  .ing-btn:hover{border-color:var(--toxic); transform:translateX(2px);}
+  .ing-btn:active{transform:translateX(0) scale(0.98);}
+  .ing-btn .eff{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-transform:uppercase;}
+  .ing-btn .cost{font-family:var(--mono); font-size:12px; color:var(--amber);}
+  .ing-btn .plus{color:var(--toxic); font-family:var(--mono); font-weight:700; font-size:15px;}
+
+  /* ===== Mix sequence (middle) ===== */
+  .seq-empty{
+    border:1px dashed var(--line); padding:40px 18px; text-align:center; color:var(--text-dim);
+    font-family:var(--mono); font-size:12px; letter-spacing:0.05em;
+  }
+  .seq-list{display:flex; flex-direction:column; gap:6px; margin-bottom:20px;}
+  .seq-item{
+    background:var(--panel); border:1px solid var(--line); padding:10px 12px;
+    display:flex; align-items:center; gap:12px; border-radius:2px;
+  }
+  .seq-item .idx{font-family:var(--mono); color:var(--toxic-dim); font-size:12px; width:22px;}
+  .seq-item .name{flex:1; font-size:13.5px;}
+  .seq-item .eff{font-family:var(--mono); font-size:10.5px; color:var(--text-dim);}
+  .seq-item .rm{
+    background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px; line-height:1;
+    padding:2px 6px; font-family:var(--mono);
+  }
+  .seq-item .rm:hover{color:#fff; background:var(--danger);}
+  .actions-row{display:flex; gap:10px; margin-bottom:26px;}
+  .btn-reset{
+    background:none; border:1px solid var(--line); color:var(--text-dim); padding:9px 16px;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:2px;
+  }
+  .btn-reset:hover{border-color:var(--danger); color:var(--danger);}
+
+  /* Step trace */
+  .trace-title{font-family:var(--mono); font-size:11px; letter-spacing:0.15em; color:var(--text-dim); text-transform:uppercase; margin:26px 0 12px; border-top:1px solid var(--line); padding-top:20px;}
+  .trace{display:flex; flex-direction:column; gap:10px;}
+  .trace-row{font-family:var(--mono); font-size:11.5px; color:var(--text-dim); line-height:1.7; padding-left:14px; border-left:2px solid var(--line);}
+  .trace-row b{color:var(--toxic);}
+  .trace-row .tf{color:var(--amber);}
+
+  /* ===== Readout panel (right) ===== */
+  .readout{
+    background:var(--panel); border:1px solid var(--line); padding:20px; border-radius:3px;
+    box-shadow:0 0 40px rgba(159,232,48,0.03);
+  }
+  .ro-row{display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid var(--line);}
+  .ro-row:last-child{border-bottom:none;}
+  .ro-label{font-family:var(--mono); font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em;}
+  .ro-value{font-family:var(--mono); font-size:20px; font-weight:600;}
+  .ro-value.sell{color:var(--toxic);}
+  .ro-value.profit{color:var(--amber);}
+  .ro-value.profit.neg{color:var(--danger);}
+
+  .effects-title{font-family:var(--mono); font-size:11px; letter-spacing:0.15em; color:var(--text-dim); text-transform:uppercase; margin:26px 0 12px;}
+  .effect-chips{display:flex; flex-wrap:wrap; gap:7px;}
+  .chip{
+    font-family:var(--mono); font-size:11px; padding:6px 10px; border:1px solid var(--toxic-dim);
+    color:var(--toxic); border-radius:20px; background:rgba(159,232,48,0.06); white-space:nowrap;
+  }
+  .chip .mult{color:var(--text-dim); margin-left:6px;}
+  .chip.zero{border-color:var(--line); color:var(--text-dim); background:none;}
+  .cap-note{margin-top:14px; font-family:var(--mono); font-size:10.5px; color:var(--amber);}
+
+  .addiction-bar-wrap{margin-top:22px;}
+  .addiction-bar{height:8px; background:var(--panel-2); border:1px solid var(--line); border-radius:4px; overflow:hidden; margin-top:8px;}
+  .addiction-fill{height:100%; background:linear-gradient(90deg, var(--toxic), var(--amber), var(--danger)); transition:width .2s;}
+
+  footer{
+    text-align:center; padding:40px 20px 10px; color:var(--text-dim); font-family:var(--mono); font-size:10.5px; letter-spacing:0.05em;
+  }
+  footer a{color:var(--toxic-dim);}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--line);}
+</style>
+</head>
+<body>
+
+<div class="hazard-bar"></div>
+
+<header>
+  <div>
+    <div class="brand-eyebrow">Mischstation · Online-Simulator</div>
+    <h1>MISCH<span>RECHNER</span></h1>
+    <p class="subtitle">Teste Rezepturen, bevor du Zutaten im Spiel verschwendest. Basisprodukt wählen, Zutaten der Reihe nach hinzufügen, Effekte, Verkaufspreis und Profit live ablesen.</p>
+  </div>
+  <div class="disclaimer">
+    <b>Fan-Projekt.</b> Inoffizielles, von der Community erstelltes Tool, inspiriert vom Spiel „Schedule I". Nicht mit den Entwicklern verbunden. Werte sind Näherungen der Community-Daten und können vom Spiel abweichen.
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: base product + ingredients -->
+  <div class="col">
+    <div class="col-title">Basisprodukt</div>
+    <div class="product-list" id="productList"></div>
+
+    <div class="col-title">Zutaten <span class="n" id="ingCount"></span></div>
+    <div class="ingredient-grid" id="ingredientList"></div>
+  </div>
+
+  <!-- MIDDLE: sequence + trace -->
+  <div class="col">
+    <div class="col-title">Rezeptur-Reihenfolge</div>
+    <div id="seqWrap">
+      <div class="seq-empty">Noch keine Zutaten hinzugefügt.<br>Klicke links auf eine Zutat, um sie in dieser Reihenfolge in die Mischung zu geben.</div>
+    </div>
+    <div class="actions-row">
+      <button class="btn-reset" id="resetBtn">↺ Mischung zurücksetzen</button>
+      <button class="btn-reset" id="undoBtn">← Letzten Schritt entfernen</button>
+    </div>
+    <div id="traceWrap"></div>
+  </div>
+
+  <!-- RIGHT: readout -->
+  <div class="col">
+    <div class="col-title">Analyse-Ergebnis</div>
+    <div class="readout">
+      <div class="ro-row"><span class="ro-label">Herstellungskosten</span><span class="ro-value" id="roCost">$0</span></div>
+      <div class="ro-row"><span class="ro-label">Verkaufspreis</span><span class="ro-value sell" id="roSell">$0</span></div>
+      <div class="ro-row"><span class="ro-label">Profit / Einheit</span><span class="ro-value profit" id="roProfit">$0</span></div>
+    </div>
+
+    <div class="effects-title">Effekte <span id="effCount" style="color:var(--text-dim)"></span></div>
+    <div class="effect-chips" id="effectChips"></div>
+    <div class="cap-note" id="capNote" style="display:none;">⚠ Obergrenze von 8 Effekten erreicht — weitere Standard-Effekte werden verworfen (Transformationen wirken trotzdem weiter).</div>
+
+    <div class="addiction-bar-wrap">
+      <div class="ro-row" style="border:none; padding:0;"><span class="ro-label">Suchtwert</span><span class="ro-value" id="roAddict" style="font-size:16px;">0%</span></div>
+      <div class="addiction-bar"><div class="addiction-fill" id="addictFill" style="width:0%"></div></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  MISCHRECHNER — inoffizielles Fan-Tool · Effekt- und Preisdaten basieren auf öffentlich dokumentierten Community-Erkenntnissen zu „Schedule I" und dienen nur zur Orientierung.
+</footer>
+
+<script>
+/* ============ GAME DATA ============ */
+
+// Effect multipliers & addiction values (community-documented approximations)
+const EFFECTS = {
+  "Anti-Gravity":     {mult:0.54, add:0.20},
+  "Athletic":         {mult:0.32, add:0.12},
+  "Balding":          {mult:0.30, add:0.05},
+  "Bright-Eyed":      {mult:0.40, add:0.18},
+  "Calming":          {mult:0.10, add:0.08},
+  "Calorie-Dense":    {mult:0.28, add:0.05},
+  "Cyclopean":        {mult:0.56, add:0.10},
+  "Disorienting":     {mult:0.00, add:0.15},
+  "Electrifying":     {mult:0.50, add:0.22},
+  "Energizing":       {mult:0.22, add:0.20},
+  "Euphoric":         {mult:0.18, add:0.14},
+  "Explosive":        {mult:0.00, add:0.10},
+  "Focused":          {mult:0.16, add:0.10},
+  "Foggy":            {mult:0.36, add:0.05},
+  "Gingeritis":       {mult:0.20, add:0.10},
+  "Glowing":          {mult:0.48, add:0.18},
+  "Jennerising":      {mult:0.42, add:0.20},
+  "Laxative":         {mult:0.00, add:0.02},
+  "Long Faced":       {mult:0.52, add:0.16},
+  "Munchies":         {mult:0.12, add:0.08},
+  "Paranoia":         {mult:0.00, add:0.05},
+  "Refreshing":       {mult:0.14, add:0.06},
+  "Sedating":         {mult:0.26, add:0.14},
+  "Schizophrenia":    {mult:0.00, add:0.10},
+  "Seizure-Inducing": {mult:0.00, add:0.10},
+  "Shrinking":        {mult:0.60, add:0.24},
+  "Slippery":         {mult:0.34, add:0.08},
+  "Smelly":           {mult:0.00, add:0.04},
+  "Sneaky":           {mult:0.24, add:0.12},
+  "Spicy":            {mult:0.38, add:0.08},
+  "Thought-Provoking":{mult:0.44, add:0.20},
+  "Toxic":            {mult:0.00, add:0.00},
+  "Tropic Thunder":   {mult:0.46, add:0.18},
+  "Zombifying":       {mult:0.54, add:0.24},
+};
+
+// Base products
+const PRODUCTS = [
+  {id:"ogkush",  name:"OG Kush",           price:35,  baseEffects:["Calming"]},
+  {id:"sourd",   name:"Sour Diesel",       price:35,  baseEffects:["Refreshing"]},
+  {id:"greenc",  name:"Green Crack",       price:35,  baseEffects:["Energizing"]},
+  {id:"gdp",     name:"Granddaddy Purple", price:35,  baseEffects:["Sedating"]},
+  {id:"shrooms", name:"Shrooms",           price:65,  baseEffects:[], baseAddiction:0.10},
+  {id:"meth",    name:"Meth",              price:70,  baseEffects:[], baseAddiction:0.20},
+  {id:"cocaine", name:"Cocaine",           price:150, baseEffects:[], baseAddiction:0.30},
+];
+
+// Ingredients: default effect + transformation rules (existingEffect -> newEffect)
+// Rules run first (all at once against current mix state), default effect added after, if room & not present.
+const INGREDIENTS = [
+  {id:"cuke",   name:"Cuke",          cost:2, def:"Energizing",
+    rules:{"Euphoric":"Laxative","Foggy":"Cyclopean","Munchies":"Athletic","Slippery":"Munchies","Sneaky":"Paranoia","Toxic":"Euphoric"}},
+  {id:"banana", name:"Banana",        cost:2, def:"Gingeritis",
+    rules:{"Calming":"Sneaky","Toxic":"Smelly","Long Faced":"Refreshing","Focused":"Seizure-Inducing","Cyclopean":"Energizing","Paranoia":"Jennerising"}},
+  {id:"para",   name:"Paracetamol",   cost:3, def:"Sneaky",
+    rules:{"Energizing":"Paranoia","Calming":"Slippery","Toxic":"Tropic Thunder","Spicy":"Bright-Eyed","Glowing":"Toxic","Foggy":"Calming","Munchies":"Anti-Gravity","Electrifying":"Athletic"}},
+  {id:"donut",  name:"Donut",         cost:3, def:"Calorie-Dense",
+    rules:{"Anti-Gravity":"Slippery","Balding":"Sneaky","Focused":"Euphoric","Jennerising":"Gingeritis","Munchies":"Calming","Shrinking":"Energizing"}},
+  {id:"viagra", name:"Viagra",        cost:4, def:"Tropic Thunder",
+    rules:{"Athletic":"Sneaky","Disorienting":"Toxic","Euphoric":"Bright-Eyed","Laxative":"Calming"}},
+  {id:"mwash",  name:"Mouth Wash",    cost:4, def:"Balding",
+    rules:{"Calming":"Anti-Gravity","Calorie-Dense":"Sneaky","Explosive":"Sedating","Focused":"Jennerising","Munchies":"Anti-Gravity"}},
+  {id:"flu",    name:"Flu Medicine",  cost:5, def:"Sedating",
+    rules:{"Calming":"Bright-Eyed","Athletic":"Munchies","Thought-Provoking":"Gingeritis","Cyclopean":"Foggy","Focused":"Calming","Euphoric":"Toxic","Zombifying":"Zombifying"}},
+  {id:"gas",    name:"Gasoline",      cost:5, def:"Toxic",
+    rules:{"Energizing":"Euphoric","Gingeritis":"Smelly","Jennerising":"Sneaky","Paranoia":"Toxic","Electrifying":"Disorienting","Euphoric":"Energizing","Munchies":"Sedating","Shrinking":"Focused","Disorienting":"Glowing"}},
+  {id:"energy", name:"Energy Drink",  cost:6, def:"Athletic",
+    rules:{"Sedating":"Athletic","Disorienting":"Electrifying","Focused":"Shrinking","Euphoric":"Energizing","Foggy":"Laxative","Glowing":"Disorienting","Schizophrenia":"Balding","Tropic Thunder":"Focused"}},
+  {id:"oil",    name:"Motor Oil",     cost:6, def:"Slippery",
+    rules:{"Energizing":"Munchies","Foggy":"Toxic","Euphoric":"Munchies","Paranoia":"Anti-Gravity"}},
+  {id:"bean",   name:"Mega Bean",     cost:7, def:"Foggy",
+    rules:{"Energizing":"Cyclopean","Focused":"Disorienting","Sneaky":"Energizing","Calming":"Glowing","Thought-Provoking":"Energizing","Seizure-Inducing":"Focused","Athletic":"Laxative"}},
+  {id:"chili",  name:"Chili",         cost:7, def:"Spicy",
+    rules:{"Sneaky":"Bright-Eyed","Athletic":"Euphoric","Munchies":"Toxic","Laxative":"Long Faced","Shrinking":"Refreshing"}},
+  {id:"battery",name:"Battery",       cost:8, def:"Bright-Eyed",
+    rules:{"Munchies":"Tropic Thunder","Euphoric":"Zombifying","Electrifying":"Euphoric","Cyclopean":"Glowing","Shrinking":"Munchies","Disorienting":"Electrifying"}},
+  {id:"iodine", name:"Iodine",        cost:8, def:"Jennerising",
+    rules:{"Calming":"Balding","Toxic":"Sneaky","Foggy":"Sneaky","Euphoric":"Seizure-Inducing","Refreshing":"Thought-Provoking"}},
+  {id:"addy",   name:"Addy",          cost:9, def:"Thought-Provoking",
+    rules:{"Sedating":"Electrifying","Glowing":"Refreshing","Foggy":"Energizing","Explosive":"Euphoric","Long Faced":"Electrifying"}},
+  {id:"horse",  name:"Horse Semen",   cost:9, def:"Long Faced",
+    rules:{"Anti-Gravity":"Calming","Gingeritis":"Refreshing","Thought-Provoking":"Electrifying","Munchies":"Long Faced"}},
+];
+
+const MAX_EFFECTS = 8;
+
+/* ============ STATE ============ */
+let selectedProductId = PRODUCTS[0].id;
+let sequence = []; // array of ingredient ids in order
+
+/* ============ CALCULATION ============ */
+function computeMix(){
+  const product = PRODUCTS.find(p=>p.id===selectedProductId);
+  let effects = [...product.baseEffects];
+  const trace = [];
+
+  sequence.forEach((ingId, stepIdx) => {
+    const ing = INGREDIENTS.find(i=>i.id===ingId);
+    const transformations = [];
+
+    // Phase 1: apply transformation rules against current effect list
+    const newEffects = effects.map(eff => {
+      const target = ing.rules[eff];
+      if (target && target !== eff && !effects.includes(target)){
+        transformations.push(`${eff} → ${target}`);
+        return target;
+      }
+      return eff;
+    });
+    // de-dupe while preserving order
+    effects = [...new Set(newEffects)];
+
+    // Phase 2: add default effect if room & not present
+    let added = false;
+    if (effects.length < MAX_EFFECTS && !effects.includes(ing.def)){
+      effects.push(ing.def);
+      added = true;
+    }
+
+    trace.push({
+      step: stepIdx+1,
+      name: ing.name,
+      transformations,
+      added: added ? ing.def : null,
+      capped: !added && !effects.includes(ing.def) ? ing.def : null,
+    });
+  });
+
+  const cost = sequence.reduce((sum, id) => sum + INGREDIENTS.find(i=>i.id===id).cost, 0);
+  const multSum = effects.reduce((sum, e) => sum + (EFFECTS[e]?.mult || 0), 0);
+  const sell = Math.round(product.price * (1 + multSum));
+  const profit = sell - cost;
+  const addictSum = effects.reduce((sum, e) => sum + (EFFECTS[e]?.add || 0), 0) + (product.baseAddiction || 0);
+  const addiction = Math.min(100, Math.round(addictSum * 100));
+
+  return {product, effects, cost, sell, profit, addiction, trace};
+}
+
+/* ============ RENDER ============ */
+function renderProducts(){
+  const wrap = document.getElementById('productList');
+  wrap.innerHTML = '';
+  PRODUCTS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'product-btn' + (p.id===selectedProductId ? ' active' : '');
+    btn.innerHTML = `<span>${p.name}</span><span class="price">$${p.price}</span>`;
+    btn.onclick = () => { selectedProductId = p.id; render(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderIngredients(){
+  const wrap = document.getElementById('ingredientList');
+  document.getElementById('ingCount').textContent = `[${INGREDIENTS.length}]`;
+  wrap.innerHTML = '';
+  INGREDIENTS.forEach(ing => {
+    const btn = document.createElement('button');
+    btn.className = 'ing-btn';
+    btn.innerHTML = `<span>${ing.name}<br><span class="eff">${ing.def}</span></span><span class="cost">$${ing.cost}</span><span class="plus">+</span>`;
+    btn.onclick = () => { sequence.push(ing.id); render(); };
+    wrap.appendChild(btn);
+  });
+}
+
+function renderSequence(mix){
+  const wrap = document.getElementById('seqWrap');
+  if (sequence.length === 0){
+    wrap.innerHTML = '<div class="seq-empty">Noch keine Zutaten hinzugefügt.<br>Klicke links auf eine Zutat, um sie in dieser Reihenfolge in die Mischung zu geben.</div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="seq-list"></div>';
+  const list = wrap.querySelector('.seq-list');
+  sequence.forEach((id, i) => {
+    const ing = INGREDIENTS.find(x=>x.id===id);
+    const row = document.createElement('div');
+    row.className = 'seq-item';
+    row.innerHTML = `<span class="idx">${String(i+1).padStart(2,'0')}</span><span class="name">${ing.name}</span><span class="eff">${ing.def}</span><button class="rm">✕</button>`;
+    row.querySelector('.rm').onclick = () => { sequence.splice(i,1); render(); };
+    list.appendChild(row);
+  });
+
+  // trace
+  const traceWrap = document.getElementById('traceWrap');
+  if (mix.trace.some(t => t.transformations.length || t.capped)){
+    let html = '<div class="trace-title">Reaktionsverlauf</div><div class="trace">';
+    mix.trace.forEach(t => {
+      let line = `<div class="trace-row"><b>${String(t.step).padStart(2,'0')} · ${t.name}</b><br>`;
+      if (t.transformations.length){
+        line += t.transformations.map(x => `<span class="tf">${x}</span>`).join('<br>') + '<br>';
+      } else {
+        line += '<span>keine Transformation</span><br>';
+      }
+      if (t.added) line += `+ ${t.added} hinzugefügt`;
+      if (t.capped) line += `⚠ ${t.capped} verworfen (voll)`;
+      line += '</div>';
+      html += line;
+    });
+    html += '</div>';
+    traceWrap.innerHTML = html;
+  } else {
+    traceWrap.innerHTML = '';
+  }
+}
+
+function renderReadout(mix){
+  document.getElementById('roCost').textContent = `$${mix.cost}`;
+  document.getElementById('roSell').textContent = `$${mix.sell}`;
+  const profitEl = document.getElementById('roProfit');
+  profitEl.textContent = `${mix.profit >= 0 ? '' : '-'}$${Math.abs(mix.profit)}`;
+  profitEl.classList.toggle('neg', mix.profit < 0);
+
+  document.getElementById('effCount').textContent = `${mix.effects.length}/${MAX_EFFECTS}`;
+  const chipsWrap = document.getElementById('effectChips');
+  chipsWrap.innerHTML = '';
+  if (mix.effects.length === 0){
+    chipsWrap.innerHTML = '<span style="color:var(--text-dim); font-family:var(--mono); font-size:12px;">Keine Effekte</span>';
+  } else {
+    mix.effects.forEach(e => {
+      const m = EFFECTS[e]?.mult || 0;
+      const chip = document.createElement('span');
+      chip.className = 'chip' + (m===0 ? ' zero' : '');
+      chip.innerHTML = `${e}<span class="mult">+${Math.round(m*100)}%</span>`;
+      chipsWrap.appendChild(chip);
+    });
+  }
+  document.getElementById('capNote').style.display = mix.effects.length >= MAX_EFFECTS ? 'block' : 'none';
+
+  document.getElementById('roAddict').textContent = `${mix.addiction}%`;
+  document.getElementById('addictFill').style.width = `${mix.addiction}%`;
+}
+
+function render(){
+  const mix = computeMix();
+  renderProducts();
+  renderIngredients();
+  renderSequence(mix);
+  renderReadout(mix);
+}
+
+document.getElementById('resetBtn').onclick = () => { sequence = []; render(); };
+document.getElementById('undoBtn').onclick = () => { sequence.pop(); render(); };
+
+render();
+</script>
+</body>
+</html>
