@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCHEDULE I WIKI // Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10130f;
+    --panel: #171b15;
+    --panel-2: #1d221a;
+    --line: #2b3226;
+    --toxic: #9fe830;
+    --toxic-dim: #6b9c22;
+    --amber: #f2a93b;
+    --danger: #e85b4a;
+    --text: #e9ecdf;
+    --text-dim: #8c9484;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Oswald', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(159,232,48,0.05), transparent 40%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 8px),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  ::selection{background:var(--toxic); color:#10130f;}
+  a{color:inherit;}
+
+  .hazard-bar{
+    height:10px;
+    background:repeating-linear-gradient(45deg, var(--amber), var(--amber) 14px, #1a1a1a 14px, #1a1a1a 28px);
+    opacity:0.85;
+  }
+  header{
+    padding:34px 5vw 26px;
+    border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;
+  }
+  .brand-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.25em; color:var(--toxic);
+    text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px; cursor:pointer;
+  }
+  .brand-eyebrow::before{content:''; width:7px; height:7px; background:var(--toxic); border-radius:50%; box-shadow:0 0 8px var(--toxic); animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:0.25}}
+  h1{
+    font-family:var(--display); font-weight:700; font-size:clamp(32px,5vw,54px);
+    text-transform:uppercase; letter-spacing:0.01em; line-height:0.95; cursor:pointer;
+  }
+  h1 span{color:var(--toxic);}
+  .subtitle{color:var(--text-dim); font-size:14px; max-width:460px; margin-top:10px; line-height:1.5;}
+  .disclaimer{
+    font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-align:right;
+    border:1px solid var(--line); padding:10px 14px; max-width:260px; line-height:1.6;
+  }
+  .disclaimer b{color:var(--amber);}
+
+  nav{
+    display:flex; gap:0; border-bottom:1px solid var(--line); padding:0 5vw;
+    overflow-x:auto;
+  }
+  nav button{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--text-dim); background:none; border:none; padding:16px 18px; white-space:nowrap;
+    border-bottom:2px solid transparent; transition:all .12s; cursor:pointer;
+  }
+  nav button:hover{color:var(--toxic); border-bottom-color:var(--toxic-dim);}
+  nav button.active{color:var(--toxic); border-bottom-color:var(--toxic);}
+
+  .search-wrap{padding:34px 5vw 10px;}
+  .search-box{
+    display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line);
+    padding:14px 18px; border-radius:3px; max-width:640px;
+  }
+  .search-box input{
+    flex:1; background:none; border:none; color:var(--text); font-family:var(--body); font-size:14px; outline:none;
+  }
+  .search-box input::placeholder{color:var(--text-dim);}
+  .search-box .icon{color:var(--toxic); font-family:var(--mono); font-size:14px;}
+  .search-hint{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); margin-top:8px;}
+
+  main{padding:10px 5vw 0;}
+  .page{display:none;}
+  .page.active{display:block;}
+
+  .section-title{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--text-dim); margin:36px 0 16px; display:flex; align-items:center; gap:12px;
+  }
+  .section-title::after{content:''; flex:1; height:1px; background:var(--line);}
+  .section-title .n{color:var(--toxic);}
+  .page-intro{color:var(--text-dim); font-size:13.5px; max-width:640px; line-height:1.6; margin-top:14px;}
+
+  .card-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line);
+  }
+  .card{
+    background:var(--bg); padding:20px; text-decoration:none; color:var(--text);
+    display:flex; flex-direction:column; gap:8px; transition:all .12s; position:relative; cursor:pointer;
+    border:none; text-align:left; font-family:var(--body); width:100%;
+  }
+  .card:hover{background:var(--panel-2);}
+  .card:hover .card-title{color:var(--toxic);}
+  .card-tag{font-family:var(--mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--toxic-dim);}
+  .card-title{font-family:var(--display); font-size:19px; text-transform:uppercase; letter-spacing:0.01em; transition:color .12s;}
+  .card-desc{font-size:12.5px; color:var(--text-dim); line-height:1.5; flex:1;}
+  .card-meta{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); border-top:1px solid var(--line); padding-top:10px; margin-top:2px; display:flex; justify-content:space-between; gap:8px;}
+  .card-meta .val{color:var(--amber);}
+  .card-tags-row{display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;}
+  .mini-chip{font-family:var(--mono); font-size:9.5px; padding:3px 7px; border:1px solid var(--line); color:var(--text-dim); border-radius:20px;}
+
+  .stat-strip{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:10px;}
+  .stat{background:var(--panel); padding:18px 20px; cursor:pointer; transition:background .12s;}
+  .stat:hover{background:var(--panel-2);}
+  .stat .num{font-family:var(--mono); font-size:26px; font-weight:700; color:var(--toxic);}
+  .stat .lbl{font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; margin-top:4px;}
+
+  .change-list{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line);}
+  .change-row{background:var(--bg); padding:13px 18px; display:flex; align-items:center; gap:14px; font-size:13px;}
+  .change-row .badge{
+    font-family:var(--mono); font-size:9.5px; padding:3px 8px; border-radius:20px; text-transform:uppercase;
+    border:1px solid var(--toxic-dim); color:var(--toxic); flex-shrink:0;
+  }
+  .change-row .badge.edit{border-color:var(--line); color:var(--text-dim);}
+  .change-row button{background:none; border:none; color:var(--text); text-decoration:none; flex:1; text-align:left; font-family:var(--body); font-size:13px; cursor:pointer; padding:0;}
+  .change-row button:hover{color:var(--toxic);}
+  .change-row .date{font-family:var(--mono); font-size:11px; color:var(--text-dim);}
+
+  .callout{
+    border:1px solid var(--toxic-dim); background:rgba(159,232,48,0.05); padding:22px 24px; margin-top:36px;
+    display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; border-radius:3px;
+  }
+  .callout-text .eyebrow{font-family:var(--mono); font-size:10.5px; color:var(--toxic); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;}
+  .callout-text .title{font-family:var(--display); font-size:22px; text-transform:uppercase;}
+  .callout-text p{color:var(--text-dim); font-size:13px; margin-top:6px; max-width:440px;}
+  .btn-primary{
+    background:var(--toxic); border:1px solid var(--toxic); color:#10130f; padding:13px 22px;
+    font-family:var(--mono); font-weight:700; font-size:12px; letter-spacing:0.1em; text-transform:uppercase;
+    cursor:pointer; border-radius:2px; text-decoration:none; white-space:nowrap; transition:all .12s; display:inline-block;
+  }
+  .btn-primary:hover{background:#b6f052; box-shadow:0 0 20px rgba(159,232,48,0.3);}
+
+  /* table-style list (effects, ranks) */
+  .data-table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); font-size:13px;}
+  .data-table th{
+    font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim);
+    text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); background:var(--panel-2);
+  }
+  .data-table td{padding:9px 14px; border-bottom:1px solid var(--line); color:var(--text);}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table tr:hover td{background:var(--panel-2);}
+  .data-table .mono{font-family:var(--mono); font-size:12px;}
+  .data-table .pos{color:var(--toxic);}
+  .data-table .neg{color:var(--danger);}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-top:none;}
+
+  .rank-group{margin-bottom:22px;}
+  .rank-group-title{font-family:var(--display); font-size:16px; text-transform:uppercase; color:var(--amber); margin-bottom:8px; letter-spacing:0.03em;}
+  .rank-pills{display:flex; flex-wrap:wrap; gap:6px;}
+  .rank-pill{
+    font-family:var(--mono); font-size:11px; padding:6px 10px; border:1px solid var(--line); border-radius:20px; color:var(--text-dim);
+    position:relative;
+  }
+  .rank-pill.unlocks{border-color:var(--toxic-dim); color:var(--toxic); background:rgba(159,232,48,0.06);}
+
+  footer{
+    text-align:center; padding:50px 20px 10px; color:var(--text-dim); font-family:var(--mono); font-size:10.5px; letter-spacing:0.05em;
+  }
+  footer .foot-links{margin-top:10px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap;}
+  footer .foot-links button{background:none; border:none; color:var(--toxic-dim); font-family:var(--mono); font-size:10.5px; cursor:pointer;}
+
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--line);}
+</style>
+</head>
+<body>
+
+<div class="hazard-bar"></div>
+
+<header>
+  <div>
+    <div class="brand-eyebrow" id="eyebrowHome">wiki.mixcalc · Community Knowledge Base</div>
+    <h1 id="titleHome">SCHEDULE I <span>WIKI</span></h1>
+    <p class="subtitle">The community-maintained reference for ingredients, effects, mixing rules, base products, ranks and everything else you need to run your operation.</p>
+  </div>
+  <div class="disclaimer">
+    <b>Fan project.</b> Unofficial, community-built wiki inspired by the game "Schedule I". Not affiliated with the developers. Content is community-sourced and may differ from the actual game.
+  </div>
+</header>
+
+<nav id="mainNav"></nav>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search the wiki — e.g. &quot;Cuke&quot;, &quot;Zombifying&quot;, &quot;Peddler III&quot; ...">
+  </div>
+  <div class="search-hint" id="searchHint"></div>
+</div>
+
+<main id="mainContent"></main>
+
+<footer>
+  SCHEDULE I WIKI — unofficial fan-run wiki, a subdomain of MIXCALC · Content is community-sourced and for reference only.
+  <div class="foot-links">
+    <button onclick="goTo('home')">Home</button>
+    <button onclick="goTo('guides')">Guides</button>
+    <a href="mixcalc.html">Mix Calculator</a>
+  </div>
+</footer>
+
+<script>
+/* ============ DATA (shared with the mix calculator) ============ */
+const EFFECTS = {
+  "Anti-Gravity":{mult:0.54,add:0.20},"Athletic":{mult:0.32,add:0.12},"Balding":{mult:0.30,add:0.05},
+  "Bright-Eyed":{mult:0.40,add:0.18},"Calming":{mult:0.10,add:0.08},"Calorie-Dense":{mult:0.28,add:0.05},
+  "Cyclopean":{mult:0.56,add:0.10},"Disorienting":{mult:0.00,add:0.15},"Electrifying":{mult:0.50,add:0.22},
+  "Energizing":{mult:0.22,add:0.20},"Euphoric":{mult:0.18,add:0.14},"Explosive":{mult:0.00,add:0.10},
+  "Focused":{mult:0.16,add:0.10},"Foggy":{mult:0.36,add:0.05},"Gingeritis":{mult:0.20,add:0.10},
+  "Glowing":{mult:0.48,add:0.18},"Jennerising":{mult:0.42,add:0.20},"Laxative":{mult:0.00,add:0.02},
+  "Long Faced":{mult:0.52,add:0.16},"Munchies":{mult:0.12,add:0.08},"Paranoia":{mult:0.00,add:0.05},
+  "Refreshing":{mult:0.14,add:0.06},"Sedating":{mult:0.26,add:0.14},"Schizophrenia":{mult:0.00,add:0.10},
+  "Seizure-Inducing":{mult:0.00,add:0.10},"Shrinking":{mult:0.60,add:0.24},"Slippery":{mult:0.34,add:0.08},
+  "Smelly":{mult:0.00,add:0.04},"Sneaky":{mult:0.24,add:0.12},"Spicy":{mult:0.38,add:0.08},
+  "Thought-Provoking":{mult:0.44,add:0.20},"Toxic":{mult:0.00,add:0.00},"Tropic Thunder":{mult:0.46,add:0.18},
+  "Zombifying":{mult:0.54,add:0.24},
+};
+
+const PRODUCTS = [
+  {name:"OG Kush",price:35,baseEffects:["Calming"]},
+  {name:"Sour Diesel",price:35,baseEffects:["Refreshing"]},
+  {name:"Green Crack",price:35,baseEffects:["Energizing"]},
+  {name:"Granddaddy Purple",price:35,baseEffects:["Sedating"]},
+  {name:"Shrooms",price:65,baseEffects:[],baseAddiction:0.10},
+  {name:"Meth",price:70,baseEffects:[],baseAddiction:0.20},
+  {name:"Cocaine",price:150,baseEffects:[],baseAddiction:0.30},
+];
+
+const INGREDIENTS = [
+  {name:"Cuke",cost:2,def:"Energizing",unlock:1,rules:{"Euphoric":"Laxative","Foggy":"Cyclopean","Munchies":"Athletic","Slippery":"Munchies","Sneaky":"Paranoia","Toxic":"Euphoric"}},
+  {name:"Donut",cost:3,def:"Calorie-Dense",unlock:1,rules:{"Anti-Gravity":"Slippery","Balding":"Sneaky","Focused":"Euphoric","Jennerising":"Gingeritis","Munchies":"Calming","Shrinking":"Energizing"}},
+  {name:"Viagra",cost:4,def:"Tropic Thunder",unlock:2,rules:{"Athletic":"Sneaky","Disorienting":"Toxic","Euphoric":"Bright-Eyed","Laxative":"Calming"}},
+  {name:"Mouth Wash",cost:4,def:"Balding",unlock:3,rules:{"Calming":"Anti-Gravity","Calorie-Dense":"Sneaky","Explosive":"Sedating","Focused":"Jennerising","Munchies":"Anti-Gravity"}},
+  {name:"Flu Medicine",cost:5,def:"Sedating",unlock:4,rules:{"Calming":"Bright-Eyed","Athletic":"Munchies","Thought-Provoking":"Gingeritis","Cyclopean":"Foggy","Focused":"Calming","Euphoric":"Toxic"}},
+  {name:"Banana",cost:2,def:"Gingeritis",unlock:5,rules:{"Calming":"Sneaky","Toxic":"Smelly","Long Faced":"Refreshing","Focused":"Seizure-Inducing","Cyclopean":"Energizing","Paranoia":"Jennerising"}},
+  {name:"Gasoline",cost:5,def:"Toxic",unlock:5,rules:{"Energizing":"Euphoric","Gingeritis":"Smelly","Jennerising":"Sneaky","Paranoia":"Toxic","Electrifying":"Disorienting","Euphoric":"Energizing","Munchies":"Sedating","Shrinking":"Focused","Disorienting":"Glowing"}},
+  {name:"Energy Drink",cost:6,def:"Athletic",unlock:6,rules:{"Sedating":"Athletic","Disorienting":"Electrifying","Focused":"Shrinking","Euphoric":"Energizing","Foggy":"Laxative","Glowing":"Disorienting","Schizophrenia":"Balding","Tropic Thunder":"Focused"}},
+  {name:"Paracetamol",cost:3,def:"Sneaky",unlock:7,rules:{"Energizing":"Paranoia","Calming":"Slippery","Toxic":"Tropic Thunder","Spicy":"Bright-Eyed","Glowing":"Toxic","Foggy":"Calming","Munchies":"Anti-Gravity","Electrifying":"Athletic"}},
+  {name:"Motor Oil",cost:6,def:"Slippery",unlock:8,rules:{"Energizing":"Munchies","Foggy":"Toxic","Euphoric":"Munchies","Paranoia":"Anti-Gravity"}},
+  {name:"Mega Bean",cost:7,def:"Foggy",unlock:9,rules:{"Energizing":"Cyclopean","Focused":"Disorienting","Sneaky":"Energizing","Calming":"Glowing","Thought-Provoking":"Energizing","Seizure-Inducing":"Focused","Athletic":"Laxative"}},
+  {name:"Chili",cost:7,def:"Spicy",unlock:10,rules:{"Sneaky":"Bright-Eyed","Athletic":"Euphoric","Munchies":"Toxic","Laxative":"Long Faced","Shrinking":"Refreshing"}},
+  {name:"Battery",cost:8,def:"Bright-Eyed",unlock:10,rules:{"Munchies":"Tropic Thunder","Euphoric":"Zombifying","Electrifying":"Euphoric","Cyclopean":"Glowing","Shrinking":"Munchies","Disorienting":"Electrifying"}},
+  {name:"Iodine",cost:8,def:"Jennerising",unlock:11,rules:{"Calming":"Balding","Toxic":"Sneaky","Foggy":"Sneaky","Euphoric":"Seizure-Inducing","Refreshing":"Thought-Provoking"}},
+  {name:"Addy",cost:9,def:"Thought-Provoking",unlock:12,rules:{"Sedating":"Electrifying","Glowing":"Refreshing","Foggy":"Energizing","Explosive":"Euphoric","Long Faced":"Electrifying"}},
+  {name:"Horse Semen",cost:9,def:"Long Faced",unlock:13,rules:{"Anti-Gravity":"Calming","Gingeritis":"Refreshing","Thought-Provoking":"Electrifying","Munchies":"Long Faced"}},
+];
+
+function buildRanks(){
+  const groups = ["Street Rat","Hoodlum","Peddler","Hustler","Bagman","Enforcer","Shot Caller","Block Boss","Underlord","Baron"];
+  const numerals = ["I","II","III","IV","V"];
+  const ranks = []; let level = 1;
+  groups.forEach(group => { numerals.forEach(num => { ranks.push({level, group, label:`${group} ${num}`}); level++; }); });
+  ranks.push({level, group:"Kingpin", label:"Kingpin"});
+  return ranks;
+}
+const RANKS = buildRanks();
+
+// Regions of Hyland Point, with the rank required to unlock each (community-documented).
+const REGIONS = [
+  {name:"Northtown", unlockLabel:"Available from the start", desc:"The starting district on the north bay. Home to the Motel, Dan's Hardware, the Skate Park and Casino, with low-standard early customers — the easiest place to build your first customer base."},
+  {name:"Westville", unlockLabel:"Hoodlum I", desc:"Northwest across the river from Northtown, reachable via two bridges. A residential area with moderate-standard customers and the Bungalow property."},
+  {name:"Downtown", unlockLabel:"Hustler I", desc:"The dense urban center, home to the Casino, Supermarket, Car Wash and Ray's Realty. Expect stricter quality demands but strong sales opportunities."},
+  {name:"Docks", unlockLabel:"Enforcer I", desc:"An isolated industrial waterfront with limited entry points and frequent checkpoints — but it holds the Docks Warehouse, the biggest production property on the map."},
+  {name:"Suburbia", unlockLabel:"Block Boss I", desc:"The southern district, past Ray's Realty. Affluent, spread-out, and best navigated by vehicle; customers expect premium product."},
+  {name:"Uptown", unlockLabel:"Baron I", desc:"The northeastern, most exclusive district. Elite clientele and the biggest payouts, if your product quality can back it up."},
+];
+
+// Schematic grid position for each region on the town map, based on documented relative
+// positions (Westville is northwest across the river; Northtown sits on the north bay;
+// Uptown is northeast; Downtown is the central hub; Suburbia is the southern district;
+// Docks is the isolated industrial/pier district). Not an exact 1:1 trace of the in-game map.
+
+
+// A selection of purchasable properties (community-documented locations & prices).
+const PROPERTIES = [
+  {name:"Motel Room", price:"$75", region:"Northtown", desc:"Your starting base in the Northtown tutorial area. No employee or vehicle slots."},
+  {name:"Sweatshop", price:"$800", region:"Northtown", desc:"Early production space above the Fat Dragon Chinese Restaurant. 1 employee slot."},
+  {name:"Bungalow", price:"$6,000", region:"Westville", desc:"A starter base with a loading dock and 5 employee slots — a popular first proper upgrade."},
+  {name:"Barn", price:"$25,000", region:"Suburbia", desc:"A large rural property outside the city proper, with 2 loading docks and 10 employee slots."},
+  {name:"Docks Warehouse", price:"$50,000", region:"Docks", desc:"The pinnacle property: massive space, 2 loading docks, 10 employee slots — reached via Ray's Realty after unlocking Docks."},
+  {name:"Laundromat", price:"$4,000", region:"Northtown", desc:"The cheapest laundering business, near the Warehouse and Slop Shop. Max laundering $2,000/24h."},
+  {name:"Post Office", price:"$10,000", region:"Northtown", desc:"Behind the courthouse in southern Northtown. Max laundering $4,000/24h."},
+  {name:"Car Wash", price:"$20,000", region:"Downtown", desc:"Located next to Ray's Realty. Max laundering $6,000/24h."},
+  {name:"Taco Ticklers", price:"$50,000", region:"Northtown", desc:"Near the Skate Park. The highest daily laundering capacity, at $8,000/24h."},
+];
+
+// Regional dealers and key suppliers (community-documented).
+const NPCS = [
+  {name:"Benji Coleman", role:"Regional Dealer — Northtown", desc:"Recruitable from the start, no rank requirement."},
+  {name:"Molly Presley", role:"Regional Dealer — Westville", desc:"Recruitable once you hit Hoodlum rank and satisfy the local clientele."},
+  {name:"Brad Crosby", role:"Regional Dealer — Downtown", desc:"Recruitable at Hustler rank."},
+  {name:"Jane Lucero", role:"Regional Dealer — Docks", desc:"Recruitable at Enforcer rank."},
+  {name:"Wei Long", role:"Regional Dealer — Suburbia", desc:"Recruitable at Block Boss rank."},
+  {name:"Leo Rivers", role:"Regional Dealer — Uptown", desc:"Recruitable at Baron rank."},
+  {name:"Albert Hoover", role:"Supplier", desc:"Your first supplier contact, found near Dan's Hardware in Northtown."},
+  {name:"Shirley Watts", role:"Supplier", desc:"Found near the Warehouse area; opens up additional supply chains."},
+  {name:"Salvador Moreno", role:"Supplier", desc:"Unlocked at higher ranks; provides higher-tier ingredients."},
+  {name:"Ray Hoffman", role:"Realtor — Ray's Realty", desc:"Sells almost every property on the map; also becomes a customer in Uptown at Baron rank."},
+];
+
+const GUIDES = [
+  {tag:"Beginner", title:"Your First Week", desc:"What to prioritize in Northtown before you unlock any other region.", target:"regions"},
+  {tag:"Core Mechanic", title:"How Mixing Works", desc:"Order of operations, transformation rules, and the 8-effect cap explained.", target:"mixing"},
+  {tag:"Optimization", title:"Chasing 100% Addictiveness", desc:"Why addictive product keeps customers coming back, and which effects contribute most.", target:"effects"},
+  {tag:"Progression", title:"Planning Your Rank-Up Path", desc:"Which ranks unlock which ingredients and regions, so you know what to save XP for.", target:"ranks"},
+  {tag:"Economy", title:"Choosing a Base Product", desc:"Comparing starting price and base effects across all 7 base products.", target:"products"},
+  {tag:"Expansion", title:"Picking Your First Property", desc:"Weighing storage space against price when you outgrow the motel.", target:"properties"},
+];
+
+/* ============ NAV ============ */
+const SECTIONS = [
+  {id:"home", label:"Home"},
+  {id:"ingredients", label:"Ingredients"},
+  {id:"effects", label:"Effects"},
+  {id:"products", label:"Base Products"},
+  {id:"mixing", label:"Mixing Rules"},
+  {id:"ranks", label:"Ranks & Unlocks"},
+  {id:"regions", label:"Regions"},
+  {id:"properties", label:"Properties"},
+  {id:"npcs", label:"NPCs"},
+  {id:"guides", label:"Guides"},
+];
+
+function renderNav(){
+  const nav = document.getElementById('mainNav');
+  nav.innerHTML = '';
+  SECTIONS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.textContent = s.label;
+    btn.dataset.id = s.id;
+    btn.onclick = () => goTo(s.id);
+    nav.appendChild(btn);
+  });
+}
+
+function goTo(id){
+  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ============ PAGE BUILDERS ============ */
+function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html!==undefined) e.innerHTML = html; return e; }
+
+function buildHome(){
+  const page = el('div','page'); page.id='page-home';
+
+  const stats = el('div','stat-strip');
+  const statData = [
+    {num:INGREDIENTS.length, lbl:'Ingredients', go:'ingredients'},
+    {num:Object.keys(EFFECTS).length, lbl:'Effects', go:'effects'},
+    {num:PRODUCTS.length, lbl:'Base Products', go:'products'},
+    {num:RANKS.length, lbl:'Ranks', go:'ranks'},
+    {num:REGIONS.length, lbl:'Regions', go:'regions'},
+  ];
+  statData.forEach(s => {
+    const d = el('div','stat', `<div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>`);
+    d.onclick = () => goTo(s.go);
+    stats.appendChild(d);
+  });
+  page.appendChild(stats);
+
+  page.appendChild(el('div','section-title','Start Here <span class="n">[04]</span>'));
+  const startGrid = el('div','card-grid');
+  const startCards = [
+    {tag:'Core Mechanic', title:'Mixing Basics', desc:'How base products, ingredients and transformation rules combine to create a final mix, and why order matters.', meta:['Read time','4 min'], go:'mixing'},
+    {tag:'Reference', title:'Ingredient List', desc:'All 16 mixing ingredients with cost, default effect and the rank required to unlock each one.', meta:['Entries', INGREDIENTS.length], go:'ingredients'},
+    {tag:'Reference', title:'Effect List', desc:'Every effect in the game with its price multiplier and addictiveness contribution.', meta:['Entries', Object.keys(EFFECTS).length], go:'effects'},
+    {tag:'Progression', title:'Ranks & Unlocks', desc:'From Street Rat I to Kingpin — what each rank unlocks, and where regions fit in.', meta:['Tiers', RANKS.length], go:'ranks'},
+  ];
+  startCards.forEach(c => {
+    const card = el('button','card', `<span class="card-tag">${c.tag}</span><span class="card-title">${c.title}</span><span class="card-desc">${c.desc}</span><span class="card-meta"><span>${c.meta[0]}</span><span class="val">${c.meta[1]}</span></span>`);
+    card.onclick = () => goTo(c.go);
+    startGrid.appendChild(card);
+  });
+  page.appendChild(startGrid);
+
+  page.appendChild(el('div','section-title','Recent Changes <span class="n">[latest]</span>'));
+  const changes = el('div','change-list');
+  const changeData = [
+    {badge:'new', text:'Ranks & Unlocks — added full table up to Baron V and Kingpin', date:'2 days ago', go:'ranks'},
+    {badge:'edit', text:'Gasoline — corrected transformation rule list', date:'4 days ago', go:'ingredients'},
+    {badge:'edit', text:'Effect List — added addictiveness values for all effects', date:'6 days ago', go:'effects'},
+    {badge:'new', text:'Regions — added unlock ranks for all six districts', date:'1 week ago', go:'regions'},
+    {badge:'edit', text:'Mixing Basics — clarified the 8-effect cap', date:'1 week ago', go:'mixing'},
+  ];
+  changeData.forEach(c => {
+    const row = el('div','change-row', `<span class="badge ${c.badge==='edit'?'edit':''}">${c.badge}</span><button>${c.text}</button><span class="date">${c.date}</span>`);
+    row.querySelector('button').onclick = () => goTo(c.go);
+    changes.appendChild(row);
+  });
+  page.appendChild(changes);
+
+  const callout = el('div','callout', `
+    <div class="callout-text">
+      <div class="eyebrow">Companion Tool</div>
+      <div class="title">Try the Mix Calculator</div>
+      <p>Plan recipes before you spend real ingredients in-game, or let the profit maximizer build one for your level.</p>
+    </div>`);
+  const btn = el('a','btn-primary','Open Mix Calculator →');
+  btn.href = 'mixcalc.html';
+  callout.appendChild(btn);
+  page.appendChild(callout);
+
+  return page;
+}
+
+function buildIngredients(){
+  const page = el('div','page'); page.id='page-ingredients';
+  page.appendChild(el('div','section-title','Ingredients <span class="n">['+INGREDIENTS.length+']</span>'));
+  page.appendChild(el('p','page-intro','All 16 mixing ingredients, in unlock order. Each one applies its transformation rules to the mix first, then adds its own default effect if there is room (see Mixing Rules).'));
+  const grid = el('div','card-grid'); grid.style.marginTop='16px';
+  INGREDIENTS.forEach(ing => {
+    const rank = RANKS.find(r=>r.level===ing.unlock);
+    const ruleCount = Object.keys(ing.rules).length;
+    const ruleChips = Object.entries(ing.rules).slice(0,4).map(([k,v])=>`<span class="mini-chip">${k} → ${v}</span>`).join('');
+    const card = el('div','card', `
+      <span class="card-tag">$${ing.cost} · ${rank ? rank.label : 'Unlock N/A'}</span>
+      <span class="card-title">${ing.name}</span>
+      <span class="card-desc">Default effect: <b style="color:var(--toxic)">${ing.def}</b></span>
+      <div class="card-tags-row">${ruleChips}${ruleCount>4?`<span class="mini-chip">+${ruleCount-4} more</span>`:''}</div>
+      <span class="card-meta"><span>Transformation rules</span><span class="val">${ruleCount}</span></span>`);
+    grid.appendChild(card);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+function buildEffects(){
+  const page = el('div','page'); page.id='page-effects';
+  page.appendChild(el('div','section-title','Effects <span class="n">['+Object.keys(EFFECTS).length+']</span>'));
+  page.appendChild(el('p','page-intro','Every effect that can appear on a mixed product. "Price Multiplier" adds to the base product\'s sell price; "Addictiveness" adds to how likely a customer is to become a repeat buyer.'));
+  const wrap = el('div','table-wrap'); wrap.style.marginTop='16px';
+  const table = el('table','data-table');
+  table.innerHTML = '<thead><tr><th>Effect</th><th>Price Multiplier</th><th>Addictiveness</th></tr></thead>';
+  const tbody = el('tbody');
+  Object.entries(EFFECTS).sort((a,b)=>b[1].mult-a[1].mult).forEach(([name,v]) => {
+    const row = el('tr','', `<td>${name}</td><td class="mono pos">+${Math.round(v.mult*100)}%</td><td class="mono neg">${Math.round(v.add*100)}%</td>`);
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  page.appendChild(wrap);
+  return page;
+}
+
+function buildProducts(){
+  const page = el('div','page'); page.id='page-products';
+  page.appendChild(el('div','section-title','Base Products <span class="n">['+PRODUCTS.length+']</span>'));
+  page.appendChild(el('p','page-intro','The base products you can mix ingredients into. Weed strains start with one effect already applied; the hard drugs start with none but a higher base price.'));
+  const grid = el('div','card-grid'); grid.style.marginTop='16px';
+  PRODUCTS.forEach(p => {
+    const card = el('div','card', `
+      <span class="card-tag">Base Product</span>
+      <span class="card-title">${p.name}</span>
+      <span class="card-desc">${p.baseEffects.length ? 'Starting effect: <b style="color:var(--toxic)">'+p.baseEffects.join(', ')+'</b>' : 'No starting effect.'}${p.baseAddiction ? ' Base addictiveness: <b style="color:var(--danger)">'+Math.round(p.baseAddiction*100)+'%</b>.' : ''}</span>
+      <span class="card-meta"><span>Base price</span><span class="val">$${p.price}</span></span>`);
+    grid.appendChild(card);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+function buildMixing(){
+  const page = el('div','page'); page.id='page-mixing';
+  page.appendChild(el('div','section-title','Mixing Rules'));
+  const box = el('div','card', '');
+  box.style.cursor = 'default';
+  box.innerHTML = `
+    <span class="card-tag">Core Mechanic</span>
+    <span class="card-title" style="font-size:24px;">How a Mix is Calculated</span>
+    <div style="color:var(--text-dim); font-size:13.5px; line-height:1.8; margin-top:10px;">
+      <p><b style="color:var(--toxic)">1. Order matters.</b> Ingredients are added one at a time, and each one is fully processed before the next is added. Adding the same two ingredients in a different order can produce a different result.</p>
+      <p style="margin-top:10px;"><b style="color:var(--toxic)">2. Transformation phase.</b> Each ingredient carries a set of rules like "Toxic → Euphoric". When it's added, the game checks the mix's current effects against that ingredient's rules and swaps any matching effect for its new one — but only if the new effect isn't already present.</p>
+      <p style="margin-top:10px;"><b style="color:var(--toxic)">3. Default effect phase.</b> After transformations are applied, the ingredient tries to add its own default effect (e.g. Cuke → Energizing) — but only if the mix has fewer than 8 effects and doesn't already have it.</p>
+      <p style="margin-top:10px;"><b style="color:var(--toxic)">4. The 8-effect cap.</b> A product can never hold more than 8 effects at once. Once the cap is hit, transformations still work (they replace one effect with another), but no more default effects get added.</p>
+      <p style="margin-top:10px;"><b style="color:var(--toxic)">5. Final price.</b> Sell price = Base price × (1 + sum of each effect's price multiplier). Cost = sum of every ingredient's price. Profit = Sell price − Cost.</p>
+      <p style="margin-top:10px;"><b style="color:var(--toxic)">6. Addictiveness.</b> Each effect also carries an addictiveness value; the mix's total addictiveness is the sum of all its effects' values (plus the base product's own addictiveness, for hard drugs), capped at 100%.</p>
+    </div>`;
+  page.appendChild(box);
+  return page;
+}
+
+function buildRanksPage(){
+  const page = el('div','page'); page.id='page-ranks';
+  page.appendChild(el('div','section-title','Ranks & Unlocks <span class="n">['+RANKS.length+']</span>'));
+  page.appendChild(el('p','page-intro','Your in-game rank gates which ingredients and regions you can access. Ranks marked in green unlock at least one ingredient or region.'));
+
+  const groups = {};
+  RANKS.forEach(r => { (groups[r.group] = groups[r.group] || []).push(r); });
+
+  Object.entries(groups).forEach(([groupName, ranks]) => {
+    const groupBox = el('div','rank-group');
+    groupBox.appendChild(el('div','rank-group-title', groupName));
+    const pills = el('div','rank-pills');
+    ranks.forEach(r => {
+      const ingUnlocked = INGREDIENTS.filter(i => i.unlock === r.level).map(i=>i.name);
+      const regionUnlocked = REGIONS.filter(reg => reg.unlockLabel.toLowerCase().includes(r.label.toLowerCase()));
+      const unlocks = [...ingUnlocked, ...regionUnlocked.map(x=>x.name)];
+      const pill = el('span','rank-pill' + (unlocks.length ? ' unlocks' : ''), `Lv ${r.level} · ${r.label}${unlocks.length ? ' — '+unlocks.join(', ') : ''}`);
+      pills.appendChild(pill);
+    });
+    groupBox.appendChild(pills);
+    page.appendChild(groupBox);
+  });
+  return page;
+}
+
+function buildRegions(){
+  const page = el('div','page'); page.id='page-regions';
+  page.appendChild(el('div','section-title','Regions <span class="n">['+REGIONS.length+']</span>'));
+  page.appendChild(el('p','page-intro','Hyland Point is divided into six districts. Each one unlocks at a specific rank and brings new customers, dealers and suppliers.'));
+  const grid = el('div','card-grid'); grid.style.marginTop='16px';
+  REGIONS.forEach(r => {
+    const card = el('div','card', `
+      <span class="card-tag">Region</span>
+      <span class="card-title">${r.name}</span>
+      <span class="card-desc">${r.desc}</span>
+      <span class="card-meta"><span>Unlocked at</span><span class="val">${r.unlockLabel}</span></span>`);
+    grid.appendChild(card);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+function buildProperties(){
+  const page = el('div','page'); page.id='page-properties';
+  page.appendChild(el('div','section-title','Properties <span class="n">['+PROPERTIES.length+']</span>'));
+  page.appendChild(el('p','page-intro','Purchasable bases of operation and money-laundering businesses, mostly sold through Ray\'s Realty. Prices are approximate.'));
+
+  const grid = el('div','card-grid'); grid.style.marginTop='16px';
+  PROPERTIES.forEach((p, i) => {
+    const card = el('div','card', `
+      <span class="card-tag">${p.region}</span>
+      <span class="card-title">${p.name}</span>
+      <span class="card-desc">${p.desc}</span>
+      <span class="card-meta"><span>Price</span><span class="val">${p.price}</span></span>`);
+    grid.appendChild(card);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+function buildNpcs(){
+  const page = el('div','page'); page.id='page-npcs';
+  page.appendChild(el('div','section-title','NPCs <span class="n">['+NPCS.length+']</span>'));
+  page.appendChild(el('p','page-intro','Key recruitable staff — regional dealers who sell your product for you, and suppliers who sell ingredients or seeds.'));
+  const wrap = el('div','table-wrap'); wrap.style.marginTop='16px';
+  const table = el('table','data-table');
+  table.innerHTML = '<thead><tr><th>Name</th><th>Role</th><th>Notes</th></tr></thead>';
+  const tbody = el('tbody');
+  NPCS.forEach(n => {
+    tbody.appendChild(el('tr','', `<td><b>${n.name}</b></td><td class="mono">${n.role}</td><td style="color:var(--text-dim)">${n.desc}</td>`));
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  page.appendChild(wrap);
+  return page;
+}
+
+function buildGuides(){
+  const page = el('div','page'); page.id='page-guides';
+  page.appendChild(el('div','section-title','Guides <span class="n">['+GUIDES.length+']</span>'));
+  page.appendChild(el('p','page-intro','Short write-ups that pull together the reference pages into practical advice.'));
+  const grid = el('div','card-grid'); grid.style.marginTop='16px';
+  GUIDES.forEach(g => {
+    const card = el('button','card', `<span class="card-tag">${g.tag}</span><span class="card-title">${g.title}</span><span class="card-desc">${g.desc}</span><span class="card-meta"><span>Related</span><span class="val">${SECTIONS.find(s=>s.id===g.target).label}</span></span>`);
+    card.onclick = () => goTo(g.target);
+    grid.appendChild(card);
+  });
+  page.appendChild(grid);
+  return page;
+}
+
+/* ============ SEARCH ============ */
+function buildSearchIndex(){
+  const index = [];
+  INGREDIENTS.forEach(i => index.push({type:'Ingredient', name:i.name, go:'ingredients'}));
+  Object.keys(EFFECTS).forEach(e => index.push({type:'Effect', name:e, go:'effects'}));
+  PRODUCTS.forEach(p => index.push({type:'Base Product', name:p.name, go:'products'}));
+  RANKS.forEach(r => index.push({type:'Rank', name:r.label, go:'ranks'}));
+  REGIONS.forEach(r => index.push({type:'Region', name:r.name, go:'regions'}));
+  PROPERTIES.forEach(p => index.push({type:'Property', name:p.name, go:'properties'}));
+  NPCS.forEach(n => index.push({type:'NPC', name:n.name, go:'npcs'}));
+  return index;
+}
+const SEARCH_INDEX = buildSearchIndex();
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  const hint = document.getElementById('searchHint');
+  if (!q){ hint.innerHTML = ''; return; }
+  const matches = SEARCH_INDEX.filter(x => x.name.toLowerCase().includes(q)).slice(0,8);
+  if (matches.length === 0){ hint.innerHTML = 'No matches.'; return; }
+  hint.innerHTML = 'Jump to: ' + matches.map(m => `<button style="background:none;border:none;color:var(--toxic);font-family:var(--mono);font-size:10.5px;cursor:pointer;text-decoration:underline;margin-right:10px;" onclick="goTo('${m.go}')">${m.name} <span style="color:var(--text-dim)">(${m.type})</span></button>`).join('');
+});
+
+/* ============ INIT ============ */
+function init(){
+  renderNav();
+  const main = document.getElementById('mainContent');
+  main.appendChild(buildHome());
+  main.appendChild(buildIngredients());
+  main.appendChild(buildEffects());
+  main.appendChild(buildProducts());
+  main.appendChild(buildMixing());
+  main.appendChild(buildRanksPage());
+  main.appendChild(buildRegions());
+  main.appendChild(buildProperties());
+  main.appendChild(buildNpcs());
+  main.appendChild(buildGuides());
+  document.getElementById('eyebrowHome').onclick = () => goTo('home');
+  document.getElementById('titleHome').onclick = () => goTo('home');
+  goTo('home');
+}
+init();
+</script>
+</body>
+</html>
