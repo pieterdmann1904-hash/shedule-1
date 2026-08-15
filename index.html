@@ -58,11 +58,22 @@
   }
   h1 span{color:var(--toxic);}
   .subtitle{color:var(--text-dim); font-size:14px; max-width:460px; margin-top:10px; line-height:1.5;}
+  .header-right{display:flex; flex-direction:column; align-items:flex-end; gap:12px;}
   .disclaimer{
     font-family:var(--mono); font-size:10.5px; color:var(--text-dim); text-align:right;
     border:1px solid var(--line); padding:10px 14px; max-width:260px; line-height:1.6;
   }
   .disclaimer b{color:var(--amber);}
+
+  .lang-switch{display:flex; gap:4px; border:1px solid var(--line); padding:3px; border-radius:20px;}
+  .lang-btn{
+    display:flex; align-items:center; gap:6px; background:none; border:none; color:var(--text-dim);
+    font-family:var(--mono); font-size:11px; letter-spacing:0.05em; padding:6px 12px; border-radius:20px;
+    cursor:pointer; transition:all .12s;
+  }
+  .lang-btn .flag{font-size:15px; line-height:1;}
+  .lang-btn:hover{color:var(--text);}
+  .lang-btn.active{background:var(--toxic); color:#10130f; font-weight:700;}
 
   nav{
     display:flex; gap:0; border-bottom:1px solid var(--line); padding:0 5vw;
@@ -150,7 +161,6 @@
   }
   .btn-primary:hover{background:#b6f052; box-shadow:0 0 20px rgba(159,232,48,0.3);}
 
-  /* table-style list (effects, ranks) */
   .data-table{width:100%; border-collapse:collapse; background:var(--panel); border:1px solid var(--line); font-size:13px;}
   .data-table th{
     font-family:var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim);
@@ -173,11 +183,31 @@
   }
   .rank-pill.unlocks{border-color:var(--toxic-dim); color:var(--toxic); background:rgba(159,232,48,0.06);}
 
+  .support-box{
+    border:1px solid var(--amber); background:rgba(242,169,59,0.06); padding:16px 20px; margin-top:36px;
+    display:flex; align-items:center; gap:14px; border-radius:3px; flex-wrap:wrap;
+  }
+  .support-box .icon{font-size:20px;}
+  .support-box .txt{font-family:var(--mono); font-size:12px; color:var(--text-dim);}
+  .support-box .txt a{color:var(--amber); text-decoration:none; font-weight:700;}
+  .support-box .txt a:hover{text-decoration:underline;}
+
+  .legal-box{
+    border:1px solid var(--danger); background:rgba(232,91,74,0.06); padding:18px 22px; border-radius:3px;
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .legal-box .icon{font-size:22px; flex-shrink:0; line-height:1.2;}
+  .legal-box .body-txt .title{font-family:var(--mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--danger); margin-bottom:8px; font-weight:700;}
+  .legal-box .body-txt p{font-size:12.5px; color:var(--text-dim); line-height:1.6;}
+
   footer{
     text-align:center; padding:50px 20px 10px; color:var(--text-dim); font-family:var(--mono); font-size:10.5px; letter-spacing:0.05em;
   }
   footer .foot-links{margin-top:10px; display:flex; gap:18px; justify-content:center; flex-wrap:wrap;}
   footer .foot-links button{background:none; border:none; color:var(--toxic-dim); font-family:var(--mono); font-size:10.5px; cursor:pointer;}
+  footer .foot-support{margin-top:14px; font-size:10.5px;}
+  footer .foot-support a{color:var(--amber); text-decoration:none;}
+  footer .foot-support a:hover{text-decoration:underline;}
 
   ::-webkit-scrollbar{width:8px; height:8px;}
   ::-webkit-scrollbar-track{background:var(--bg);}
@@ -190,12 +220,16 @@
 
 <header>
   <div>
-    <div class="brand-eyebrow" id="eyebrowHome">wiki.mixcalc · Community Knowledge Base</div>
+    <div class="brand-eyebrow" id="eyebrowHome"></div>
     <h1 id="titleHome">SCHEDULE I <span>WIKI</span></h1>
-    <p class="subtitle">The community-maintained reference for ingredients, effects, mixing rules, base products, ranks and everything else you need to run your operation.</p>
+    <p class="subtitle" id="subtitleText"></p>
   </div>
-  <div class="disclaimer">
-    <b>Fan project.</b> Unofficial, community-built wiki inspired by the game "Schedule I". Not affiliated with the developers. Content is community-sourced and may differ from the actual game.
+  <div class="header-right">
+    <div class="lang-switch" id="langSwitch">
+      <button class="lang-btn" id="langEn"><span class="flag">🇬🇧</span>EN</button>
+      <button class="lang-btn" id="langDe"><span class="flag">🇩🇪</span>DE</button>
+    </div>
+    <div class="disclaimer" id="disclaimerText"></div>
   </div>
 </header>
 
@@ -204,7 +238,7 @@
 <div class="search-wrap">
   <div class="search-box">
     <span class="icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Search the wiki — e.g. &quot;Cuke&quot;, &quot;Zombifying&quot;, &quot;Peddler III&quot; ...">
+    <input type="text" id="searchInput">
   </div>
   <div class="search-hint" id="searchHint"></div>
 </div>
@@ -212,16 +246,18 @@
 <main id="mainContent"></main>
 
 <footer>
-  SCHEDULE I WIKI — unofficial fan-run wiki, a subdomain of MIXCALC · Content is community-sourced and for reference only.
+  <div id="footerText"></div>
+  <div class="foot-support" id="footerLegalText" style="color:var(--danger);"></div>
+  <div class="foot-support" id="footerSupport"></div>
   <div class="foot-links">
-    <button onclick="goTo('home')">Home</button>
-    <button onclick="goTo('guides')">Guides</button>
-    <a href="mixcalc.html">Mix Calculator</a>
+    <button onclick="goTo('home')" id="footHomeBtn"></button>
+    <button onclick="goTo('guides')" id="footGuidesBtn"></button>
+    <a href="mixcalc.html" id="footCalcBtn"></a>
   </div>
 </footer>
 
 <script>
-/* ============ DATA (shared with the mix calculator) ============ */
+/* ============ GAME DATA (shared with the mix calculator) ============ */
 const EFFECTS = {
   "Anti-Gravity":{mult:0.54,add:0.20},"Athletic":{mult:0.32,add:0.12},"Balding":{mult:0.30,add:0.05},
   "Bright-Eyed":{mult:0.40,add:0.18},"Calming":{mult:0.10,add:0.08},"Calorie-Dense":{mult:0.28,add:0.05},
@@ -270,155 +306,332 @@ function buildRanks(){
   const groups = ["Street Rat","Hoodlum","Peddler","Hustler","Bagman","Enforcer","Shot Caller","Block Boss","Underlord","Baron"];
   const numerals = ["I","II","III","IV","V"];
   const ranks = []; let level = 1;
-  groups.forEach(group => { numerals.forEach(num => { ranks.push({level, group, label:`${group} ${num}`}); level++; }); });
+  groups.forEach(group => { numerals.forEach(num => { ranks.push({level, group, label:group+" "+num}); level++; }); });
   ranks.push({level, group:"Kingpin", label:"Kingpin"});
   return ranks;
 }
 const RANKS = buildRanks();
 
-// Regions of Hyland Point, with the rank required to unlock each (community-documented).
 const REGIONS = [
-  {name:"Northtown", unlockLabel:"Available from the start", desc:"The starting district on the north bay. Home to the Motel, Dan's Hardware, the Skate Park and Casino, with low-standard early customers — the easiest place to build your first customer base."},
-  {name:"Westville", unlockLabel:"Hoodlum I", desc:"Northwest across the river from Northtown, reachable via two bridges. A residential area with moderate-standard customers and the Bungalow property."},
-  {name:"Downtown", unlockLabel:"Hustler I", desc:"The dense urban center, home to the Casino, Supermarket, Car Wash and Ray's Realty. Expect stricter quality demands but strong sales opportunities."},
-  {name:"Docks", unlockLabel:"Enforcer I", desc:"An isolated industrial waterfront with limited entry points and frequent checkpoints — but it holds the Docks Warehouse, the biggest production property on the map."},
-  {name:"Suburbia", unlockLabel:"Block Boss I", desc:"The southern district, past Ray's Realty. Affluent, spread-out, and best navigated by vehicle; customers expect premium product."},
-  {name:"Uptown", unlockLabel:"Baron I", desc:"The northeastern, most exclusive district. Elite clientele and the biggest payouts, if your product quality can back it up."},
+  {name:"Northtown", unlockLabel:"Available from the start",
+    en:"The starting district on the north bay. Home to the Motel, Dan's Hardware, the Skate Park and Casino, with low-standard early customers — the easiest place to build your first customer base.",
+    de:"Der Startbezirk an der Nordbucht. Heimat des Motels, Dan's Hardware, des Skateparks und des Casinos, mit anspruchslosen frühen Kunden — der einfachste Ort, um deinen ersten Kundenstamm aufzubauen."},
+  {name:"Westville", unlockLabel:"Hoodlum I",
+    en:"Northwest across the river from Northtown, reachable via two bridges. A residential area with moderate-standard customers and the Bungalow property.",
+    de:"Nordwestlich, jenseits des Flusses von Northtown, erreichbar über zwei Brücken. Ein Wohngebiet mit Kunden mittlerer Ansprüche und dem Bungalow als Immobilie."},
+  {name:"Downtown", unlockLabel:"Hustler I",
+    en:"The dense urban center, home to the Casino, Supermarket, Car Wash and Ray's Realty. Expect stricter quality demands but strong sales opportunities.",
+    de:"Das dicht besiedelte Stadtzentrum mit Casino, Supermarkt, Autowaschanlage und Ray's Realty. Höhere Qualitätsansprüche, dafür starke Verkaufschancen."},
+  {name:"Docks", unlockLabel:"Enforcer I",
+    en:"An isolated industrial waterfront with limited entry points and frequent checkpoints — but it holds the Docks Warehouse, the biggest production property on the map.",
+    de:"Ein abgelegenes Industriegebiet am Wasser mit wenigen Zugängen und häufigen Kontrollen — dafür befindet sich hier das Docks Warehouse, die größte Produktionsimmobilie der Karte."},
+  {name:"Suburbia", unlockLabel:"Block Boss I",
+    en:"The southern district, past Ray's Realty. Affluent, spread-out, and best navigated by vehicle; customers expect premium product.",
+    de:"Der südliche Bezirk, hinter Ray's Realty. Wohlhabend, weitläufig und am besten mit Fahrzeug zu erreichen; Kunden erwarten Premium-Ware."},
+  {name:"Uptown", unlockLabel:"Baron I",
+    en:"The northeastern, most exclusive district. Elite clientele and the biggest payouts, if your product quality can back it up.",
+    de:"Der nordöstliche, exklusivste Bezirk. Elite-Kundschaft und die höchsten Erlöse — vorausgesetzt, deine Produktqualität stimmt."},
 ];
 
-// Schematic grid position for each region on the town map, based on documented relative
-// positions (Westville is northwest across the river; Northtown sits on the north bay;
-// Uptown is northeast; Downtown is the central hub; Suburbia is the southern district;
-// Docks is the isolated industrial/pier district). Not an exact 1:1 trace of the in-game map.
-
-
-// A selection of purchasable properties (community-documented locations & prices).
 const PROPERTIES = [
-  {name:"Motel Room", price:"$75", region:"Northtown", desc:"Your starting base in the Northtown tutorial area. No employee or vehicle slots."},
-  {name:"Sweatshop", price:"$800", region:"Northtown", desc:"Early production space above the Fat Dragon Chinese Restaurant. 1 employee slot."},
-  {name:"Bungalow", price:"$6,000", region:"Westville", desc:"A starter base with a loading dock and 5 employee slots — a popular first proper upgrade."},
-  {name:"Barn", price:"$25,000", region:"Suburbia", desc:"A large rural property outside the city proper, with 2 loading docks and 10 employee slots."},
-  {name:"Docks Warehouse", price:"$50,000", region:"Docks", desc:"The pinnacle property: massive space, 2 loading docks, 10 employee slots — reached via Ray's Realty after unlocking Docks."},
-  {name:"Laundromat", price:"$4,000", region:"Northtown", desc:"The cheapest laundering business, near the Warehouse and Slop Shop. Max laundering $2,000/24h."},
-  {name:"Post Office", price:"$10,000", region:"Northtown", desc:"Behind the courthouse in southern Northtown. Max laundering $4,000/24h."},
-  {name:"Car Wash", price:"$20,000", region:"Downtown", desc:"Located next to Ray's Realty. Max laundering $6,000/24h."},
-  {name:"Taco Ticklers", price:"$50,000", region:"Northtown", desc:"Near the Skate Park. The highest daily laundering capacity, at $8,000/24h."},
+  {name:"Motel Room", price:"$75", region:"Northtown",
+    en:"Your starting base in the Northtown tutorial area. No employee or vehicle slots.",
+    de:"Deine Startbasis im Northtown-Tutorial-Bereich. Keine Mitarbeiter- oder Fahrzeugplätze."},
+  {name:"Sweatshop", price:"$800", region:"Northtown",
+    en:"Early production space above the Fat Dragon Chinese Restaurant. 1 employee slot.",
+    de:"Frühe Produktionsfläche über dem Fat Dragon Chinese Restaurant. 1 Mitarbeiterplatz."},
+  {name:"Bungalow", price:"$6,000", region:"Westville",
+    en:"A starter base with a loading dock and 5 employee slots — a popular first proper upgrade.",
+    de:"Eine Einsteiger-Basis mit Laderampe und 5 Mitarbeiterplätzen — ein beliebtes erstes richtiges Upgrade."},
+  {name:"Barn", price:"$25,000", region:"Suburbia",
+    en:"A large rural property outside the city proper, with 2 loading docks and 10 employee slots.",
+    de:"Eine große ländliche Immobilie außerhalb der Stadt, mit 2 Laderampen und 10 Mitarbeiterplätzen."},
+  {name:"Docks Warehouse", price:"$50,000", region:"Docks",
+    en:"The pinnacle property: massive space, 2 loading docks, 10 employee slots — reached via Ray's Realty after unlocking Docks.",
+    de:"Die Spitzenimmobilie: riesige Fläche, 2 Laderampen, 10 Mitarbeiterplätze — erreichbar über Ray's Realty nach Freischaltung der Docks."},
+  {name:"Laundromat", price:"$4,000", region:"Northtown",
+    en:"The cheapest laundering business, near the Warehouse and Slop Shop. Max laundering $2,000/24h.",
+    de:"Das günstigste Geldwäsche-Geschäft, in der Nähe von Warehouse und Slop Shop. Max. Geldwäsche $2.000/24h."},
+  {name:"Post Office", price:"$10,000", region:"Northtown",
+    en:"Behind the courthouse in southern Northtown. Max laundering $4,000/24h.",
+    de:"Hinter dem Gerichtsgebäude im südlichen Northtown. Max. Geldwäsche $4.000/24h."},
+  {name:"Car Wash", price:"$20,000", region:"Downtown",
+    en:"Located next to Ray's Realty. Max laundering $6,000/24h.",
+    de:"Liegt direkt neben Ray's Realty. Max. Geldwäsche $6.000/24h."},
+  {name:"Taco Ticklers", price:"$50,000", region:"Northtown",
+    en:"Near the Skate Park. The highest daily laundering capacity, at $8,000/24h.",
+    de:"In der Nähe des Skateparks. Die höchste tägliche Geldwäsche-Kapazität mit $8.000/24h."},
 ];
 
-// Regional dealers and key suppliers (community-documented).
 const NPCS = [
-  {name:"Benji Coleman", role:"Regional Dealer — Northtown", desc:"Recruitable from the start, no rank requirement."},
-  {name:"Molly Presley", role:"Regional Dealer — Westville", desc:"Recruitable once you hit Hoodlum rank and satisfy the local clientele."},
-  {name:"Brad Crosby", role:"Regional Dealer — Downtown", desc:"Recruitable at Hustler rank."},
-  {name:"Jane Lucero", role:"Regional Dealer — Docks", desc:"Recruitable at Enforcer rank."},
-  {name:"Wei Long", role:"Regional Dealer — Suburbia", desc:"Recruitable at Block Boss rank."},
-  {name:"Leo Rivers", role:"Regional Dealer — Uptown", desc:"Recruitable at Baron rank."},
-  {name:"Albert Hoover", role:"Supplier", desc:"Your first supplier contact, found near Dan's Hardware in Northtown."},
-  {name:"Shirley Watts", role:"Supplier", desc:"Found near the Warehouse area; opens up additional supply chains."},
-  {name:"Salvador Moreno", role:"Supplier", desc:"Unlocked at higher ranks; provides higher-tier ingredients."},
-  {name:"Ray Hoffman", role:"Realtor — Ray's Realty", desc:"Sells almost every property on the map; also becomes a customer in Uptown at Baron rank."},
+  {name:"Benji Coleman", roleEn:"Regional Dealer — Northtown", roleDe:"Regionaler Dealer — Northtown",
+    en:"Recruitable from the start, no rank requirement.", de:"Von Anfang an anwerbbar, keine Rang-Voraussetzung."},
+  {name:"Molly Presley", roleEn:"Regional Dealer — Westville", roleDe:"Regionale Dealerin — Westville",
+    en:"Recruitable once you hit Hoodlum rank and satisfy the local clientele.", de:"Anwerbbar ab Rang Hoodlum, sofern die lokale Kundschaft zufrieden ist."},
+  {name:"Brad Crosby", roleEn:"Regional Dealer — Downtown", roleDe:"Regionaler Dealer — Downtown",
+    en:"Recruitable at Hustler rank.", de:"Anwerbbar ab Rang Hustler."},
+  {name:"Jane Lucero", roleEn:"Regional Dealer — Docks", roleDe:"Regionale Dealerin — Docks",
+    en:"Recruitable at Enforcer rank.", de:"Anwerbbar ab Rang Enforcer."},
+  {name:"Wei Long", roleEn:"Regional Dealer — Suburbia", roleDe:"Regionaler Dealer — Suburbia",
+    en:"Recruitable at Block Boss rank.", de:"Anwerbbar ab Rang Block Boss."},
+  {name:"Leo Rivers", roleEn:"Regional Dealer — Uptown", roleDe:"Regionaler Dealer — Uptown",
+    en:"Recruitable at Baron rank.", de:"Anwerbbar ab Rang Baron."},
+  {name:"Albert Hoover", roleEn:"Supplier", roleDe:"Lieferant",
+    en:"Your first supplier contact, found near Dan's Hardware in Northtown.", de:"Dein erster Lieferantenkontakt, zu finden in der Nähe von Dan's Hardware in Northtown."},
+  {name:"Shirley Watts", roleEn:"Supplier", roleDe:"Lieferantin",
+    en:"Found near the Warehouse area; opens up additional supply chains.", de:"Zu finden beim Warehouse-Gebiet; eröffnet zusätzliche Lieferketten."},
+  {name:"Salvador Moreno", roleEn:"Supplier", roleDe:"Lieferant",
+    en:"Unlocked at higher ranks; provides higher-tier ingredients.", de:"Wird bei höheren Rängen freigeschaltet; liefert hochwertigere Zutaten."},
+  {name:"Ray Hoffman", roleEn:"Realtor — Ray's Realty", roleDe:"Makler — Ray's Realty",
+    en:"Sells almost every property on the map; also becomes a customer in Uptown at Baron rank.", de:"Verkauft fast jede Immobilie der Karte; wird ab Rang Baron zudem selbst Kunde in Uptown."},
 ];
 
 const GUIDES = [
-  {tag:"Beginner", title:"Your First Week", desc:"What to prioritize in Northtown before you unlock any other region.", target:"regions"},
-  {tag:"Core Mechanic", title:"How Mixing Works", desc:"Order of operations, transformation rules, and the 8-effect cap explained.", target:"mixing"},
-  {tag:"Optimization", title:"Chasing 100% Addictiveness", desc:"Why addictive product keeps customers coming back, and which effects contribute most.", target:"effects"},
-  {tag:"Progression", title:"Planning Your Rank-Up Path", desc:"Which ranks unlock which ingredients and regions, so you know what to save XP for.", target:"ranks"},
-  {tag:"Economy", title:"Choosing a Base Product", desc:"Comparing starting price and base effects across all 7 base products.", target:"products"},
-  {tag:"Expansion", title:"Picking Your First Property", desc:"Weighing storage space against price when you outgrow the motel.", target:"properties"},
+  {tagEn:"Beginner", tagDe:"Einsteiger", titleEn:"Your First Week", titleDe:"Deine erste Woche",
+    en:"What to prioritize in Northtown before you unlock any other region.", de:"Worauf du in Northtown Wert legen solltest, bevor du andere Bezirke freischaltest.", target:"regions"},
+  {tagEn:"Core Mechanic", tagDe:"Kernmechanik", titleEn:"How Mixing Works", titleDe:"Wie das Mischen funktioniert",
+    en:"Order of operations, transformation rules, and the 8-effect cap explained.", de:"Reihenfolge, Transformationsregeln und die 8-Effekte-Obergrenze erklärt.", target:"mixing"},
+  {tagEn:"Optimization", tagDe:"Optimierung", titleEn:"Chasing 100% Addictiveness", titleDe:"Auf dem Weg zu 100% Suchtwert",
+    en:"Why addictive product keeps customers coming back, and which effects contribute most.", de:"Warum süchtig machende Ware Kunden zurückbringt und welche Effekte am meisten beitragen.", target:"effects"},
+  {tagEn:"Progression", tagDe:"Fortschritt", titleEn:"Planning Your Rank-Up Path", titleDe:"Deinen Aufstiegs-Pfad planen",
+    en:"Which ranks unlock which ingredients and regions, so you know what to save XP for.", de:"Welche Ränge welche Zutaten und Bezirke freischalten, damit du weißt, wofür sich XP sparen lohnt.", target:"ranks"},
+  {tagEn:"Economy", tagDe:"Wirtschaft", titleEn:"Choosing a Base Product", titleDe:"Das richtige Basisprodukt wählen",
+    en:"Comparing starting price and base effects across all 7 base products.", de:"Vergleich von Startpreis und Basiseffekten aller 7 Basisprodukte.", target:"products"},
+  {tagEn:"Expansion", tagDe:"Expansion", titleEn:"Picking Your First Property", titleDe:"Deine erste Immobilie auswählen",
+    en:"Weighing storage space against price when you outgrow the motel.", de:"Lagerfläche gegen Preis abwägen, sobald das Motel zu klein wird.", target:"properties"},
 ];
 
-/* ============ NAV ============ */
-const SECTIONS = [
-  {id:"home", label:"Home"},
-  {id:"ingredients", label:"Ingredients"},
-  {id:"effects", label:"Effects"},
-  {id:"products", label:"Base Products"},
-  {id:"mixing", label:"Mixing Rules"},
-  {id:"ranks", label:"Ranks & Unlocks"},
-  {id:"regions", label:"Regions"},
-  {id:"properties", label:"Properties"},
-  {id:"npcs", label:"NPCs"},
-  {id:"guides", label:"Guides"},
-];
+/* ============ UI TEXT ============ */
+const UI = {
+  en: {
+    eyebrow: "wiki.mixcalc · Community Knowledge Base",
+    subtitle: "The community-maintained reference for ingredients, effects, mixing rules, base products, ranks and everything else you need to run your operation.",
+    disclaimerB: "Fan project.",
+    disclaimerText: "Unofficial, community-built wiki inspired by the game \"Schedule I\". Not affiliated with the developers. Content is community-sourced and may differ from the actual game.",
+    searchPlaceholder: "Search the wiki — e.g. \"Cuke\", \"Zombifying\", \"Peddler III\" ...",
+    noMatches: "No matches.",
+    jumpTo: "Jump to:",
+    nav: {home:"Home", ingredients:"Ingredients", effects:"Effects", products:"Base Products", mixing:"Mixing Rules", ranks:"Ranks & Unlocks", regions:"Regions", properties:"Properties", npcs:"NPCs", guides:"Guides"},
+    statLbl: {ingredients:"Ingredients", effects:"Effects", products:"Base Products", ranks:"Ranks", regions:"Regions"},
+    startHere: "Start Here",
+    startCards: [
+      {tag:'Core Mechanic', title:'Mixing Basics', desc:'How base products, ingredients and transformation rules combine to create a final mix, and why order matters.', metaLbl:'Read time', metaVal:'4 min', go:'mixing'},
+      {tag:'Reference', title:'Ingredient List', desc:'All 16 mixing ingredients with cost, default effect and the rank required to unlock each one.', metaLbl:'Entries', metaVal:String(INGREDIENTS.length), go:'ingredients'},
+      {tag:'Reference', title:'Effect List', desc:'Every effect in the game with its price multiplier and addictiveness contribution.', metaLbl:'Entries', metaVal:String(Object.keys(EFFECTS).length), go:'effects'},
+      {tag:'Progression', title:'Ranks & Unlocks', desc:'From Street Rat I to Kingpin — what each rank unlocks, and where regions fit in.', metaLbl:'Tiers', metaVal:String(RANKS.length), go:'ranks'},
+    ],
+    recentChanges: "Recent Changes",
+    changeData: [
+      {badge:'new', text:'Ranks & Unlocks — added full table up to Baron V and Kingpin', date:'2 days ago', go:'ranks'},
+      {badge:'edit', text:'Gasoline — corrected transformation rule list', date:'4 days ago', go:'ingredients'},
+      {badge:'edit', text:'Effect List — added addictiveness values for all effects', date:'6 days ago', go:'effects'},
+      {badge:'new', text:'Regions — added unlock ranks for all six districts', date:'1 week ago', go:'regions'},
+      {badge:'edit', text:'Mixing Basics — clarified the 8-effect cap', date:'1 week ago', go:'mixing'},
+    ],
+    calloutEyebrow: "Companion Tool",
+    calloutTitle: "Try the Mix Calculator",
+    calloutText: "Plan recipes before you spend real ingredients in-game, or let the profit maximizer build one for your level.",
+    openCalc: "Open Mix Calculator →",
+    ingredientsIntro: "All 16 mixing ingredients, in unlock order. Each one applies its transformation rules to the mix first, then adds its own default effect if there is room (see Mixing Rules).",
+    defaultEffect: "Default effect:",
+    transformationRules: "Transformation rules",
+    more: "more",
+    unlockNA: "Unlock N/A",
+    effectsIntro: "Every effect that can appear on a mixed product. \"Price Multiplier\" adds to the base product's sell price; \"Addictiveness\" adds to how likely a customer is to become a repeat buyer.",
+    effectTh: ["Effect","Price Multiplier","Addictiveness"],
+    productsIntro: "The base products you can mix ingredients into. Weed strains start with one effect already applied; the hard drugs start with none but a higher base price.",
+    baseProductTag: "Base Product",
+    startingEffect: "Starting effect:",
+    noStartingEffect: "No starting effect.",
+    baseAddictiveness: "Base addictiveness:",
+    basePrice: "Base price",
+    mixingTitle: "How a Mix is Calculated",
+    mixingCoreMechanic: "Core Mechanic",
+    mixingSteps: [
+      "<b style=\"color:var(--toxic)\">1. Order matters.</b> Ingredients are added one at a time, and each one is fully processed before the next is added. Adding the same two ingredients in a different order can produce a different result.",
+      "<b style=\"color:var(--toxic)\">2. Transformation phase.</b> Each ingredient carries a set of rules like \"Toxic → Euphoric\". When it's added, the game checks the mix's current effects against that ingredient's rules and swaps any matching effect for its new one — but only if the new effect isn't already present.",
+      "<b style=\"color:var(--toxic)\">3. Default effect phase.</b> After transformations are applied, the ingredient tries to add its own default effect (e.g. Cuke → Energizing) — but only if the mix has fewer than 8 effects and doesn't already have it.",
+      "<b style=\"color:var(--toxic)\">4. The 8-effect cap.</b> A product can never hold more than 8 effects at once. Once the cap is hit, transformations still work (they replace one effect with another), but no more default effects get added.",
+      "<b style=\"color:var(--toxic)\">5. Final price.</b> Sell price = Base price × (1 + sum of each effect's price multiplier). Cost = sum of every ingredient's price. Profit = Sell price − Cost.",
+      "<b style=\"color:var(--toxic)\">6. Addictiveness.</b> Each effect also carries an addictiveness value; the mix's total addictiveness is the sum of all its effects' values (plus the base product's own addictiveness, for hard drugs), capped at 100%.",
+    ],
+    ranksIntro: "Your in-game rank gates which ingredients and regions you can access. Ranks marked in green unlock at least one ingredient or region.",
+    regionsIntro: "Hyland Point is divided into six districts. Each one unlocks at a specific rank and brings new customers, dealers and suppliers.",
+    regionTag: "Region",
+    unlockedAt: "Unlocked at",
+    propertiesIntro: "Purchasable bases of operation and money-laundering businesses, mostly sold through Ray's Realty. Prices are approximate.",
+    price: "Price",
+    npcsIntro: "Key recruitable staff — regional dealers who sell your product for you, and suppliers who sell ingredients or seeds.",
+    npcTh: ["Name","Role","Notes"],
+    guidesIntro: "Short write-ups that pull together the reference pages into practical advice.",
+    related: "Related",
+    footerLine: "SCHEDULE I WIKI — unofficial fan-run wiki, a subdomain of MIXCALC · Content is community-sourced and for reference only.",
+    footerSupport: "Questions or problems? Contact",
+    footHome: "Home", footGuides: "Guides", footCalc: "Mix Calculator",
+    legalTitle: "Legal Notice",
+    legalText: "This wiki and its companion calculator are unofficial fan projects built purely for entertainment and reference purposes around the fictional video game \"Schedule I\". All ingredients, products, effects and mechanics described here exist only within that game's fiction. Producing, distributing or using real illegal drugs is against the law in most jurisdictions and can cause serious harm. Nothing on this site is real-world drug information, advice, or an endorsement of illegal activity — if you or someone you know is struggling with substance use, please reach out to a local support service or medical professional.",
+    footerLegal: "For entertainment purposes only — depicts a fictional game economy, not real-world drugs. Producing, distributing or using real illegal drugs is illegal and harmful.",
+  },
+  de: {
+    eyebrow: "wiki.mixcalc · Community-Wissensdatenbank",
+    subtitle: "Die von der Community gepflegte Referenz für Zutaten, Effekte, Mischregeln, Basisprodukte, Ränge und alles andere, was du für dein Geschäft brauchst.",
+    disclaimerB: "Fan-Projekt.",
+    disclaimerText: "Inoffizielles, von der Community erstelltes Wiki, inspiriert vom Spiel „Schedule I“. Nicht mit den Entwicklern verbunden. Inhalte stammen aus der Community und können vom tatsächlichen Spiel abweichen.",
+    searchPlaceholder: "Wiki durchsuchen — z. B. „Cuke“, „Zombifying“, „Peddler III“ ...",
+    noMatches: "Keine Treffer.",
+    jumpTo: "Springe zu:",
+    nav: {home:"Start", ingredients:"Zutaten", effects:"Effekte", products:"Basisprodukte", mixing:"Mischregeln", ranks:"Ränge & Freischaltungen", regions:"Regionen", properties:"Immobilien", npcs:"NPCs", guides:"Guides"},
+    statLbl: {ingredients:"Zutaten", effects:"Effekte", products:"Basisprodukte", ranks:"Ränge", regions:"Regionen"},
+    startHere: "Erste Schritte",
+    startCards: [
+      {tag:'Kernmechanik', title:'Misch-Grundlagen', desc:'Wie Basisprodukte, Zutaten und Transformationsregeln zu einer fertigen Mischung kombiniert werden, und warum die Reihenfolge wichtig ist.', metaLbl:'Lesezeit', metaVal:'4 Min.', go:'mixing'},
+      {tag:'Referenz', title:'Zutatenliste', desc:'Alle 16 Misch-Zutaten mit Kosten, Standard-Effekt und dem für die Freischaltung nötigen Rang.', metaLbl:'Einträge', metaVal:String(INGREDIENTS.length), go:'ingredients'},
+      {tag:'Referenz', title:'Effektliste', desc:'Jeder Effekt im Spiel mit Preis-Multiplikator und Suchtwert-Beitrag.', metaLbl:'Einträge', metaVal:String(Object.keys(EFFECTS).length), go:'effects'},
+      {tag:'Fortschritt', title:'Ränge & Freischaltungen', desc:'Von Street Rat I bis Kingpin — was jeder Rang freischaltet und wo Regionen einsortiert sind.', metaLbl:'Stufen', metaVal:String(RANKS.length), go:'ranks'},
+    ],
+    recentChanges: "Letzte Änderungen",
+    changeData: [
+      {badge:'neu', text:'Ränge & Freischaltungen — vollständige Tabelle bis Baron V und Kingpin ergänzt', date:'vor 2 Tagen', go:'ranks'},
+      {badge:'edit', text:'Gasoline — Liste der Transformationsregeln korrigiert', date:'vor 4 Tagen', go:'ingredients'},
+      {badge:'edit', text:'Effektliste — Suchtwerte für alle Effekte ergänzt', date:'vor 6 Tagen', go:'effects'},
+      {badge:'neu', text:'Regionen — Freischalt-Ränge für alle sechs Bezirke ergänzt', date:'vor 1 Woche', go:'regions'},
+      {badge:'edit', text:'Misch-Grundlagen — 8-Effekte-Obergrenze präzisiert', date:'vor 1 Woche', go:'mixing'},
+    ],
+    calloutEyebrow: "Begleit-Tool",
+    calloutTitle: "Probier den Mix-Rechner aus",
+    calloutText: "Plane Rezepturen, bevor du echte Zutaten im Spiel verschwendest, oder lass den Profit-Maximierer eine für dein Level erstellen.",
+    openCalc: "Mix-Rechner öffnen →",
+    ingredientsIntro: "Alle 16 Misch-Zutaten in Freischalt-Reihenfolge. Jede wendet zuerst ihre Transformationsregeln auf die Mischung an und fügt danach ihren eigenen Standard-Effekt hinzu, sofern noch Platz ist (siehe Mischregeln).",
+    defaultEffect: "Standard-Effekt:",
+    transformationRules: "Transformationsregeln",
+    more: "weitere",
+    unlockNA: "Freischaltung unbekannt",
+    effectsIntro: "Jeder Effekt, der auf einem gemischten Produkt erscheinen kann. „Preis-Multiplikator“ erhöht den Verkaufspreis des Basisprodukts; „Suchtwert“ erhöht die Wahrscheinlichkeit, dass ein Kunde zum Stammkunden wird.",
+    effectTh: ["Effekt","Preis-Multiplikator","Suchtwert"],
+    productsIntro: "Die Basisprodukte, in die du Zutaten mischen kannst. Die Cannabis-Sorten starten bereits mit einem Effekt; die harten Drogen starten ohne Effekt, dafür mit höherem Basispreis.",
+    baseProductTag: "Basisprodukt",
+    startingEffect: "Starteffekt:",
+    noStartingEffect: "Kein Starteffekt.",
+    baseAddictiveness: "Basis-Suchtwert:",
+    basePrice: "Basispreis",
+    mixingTitle: "Wie eine Mischung berechnet wird",
+    mixingCoreMechanic: "Kernmechanik",
+    mixingSteps: [
+      "<b style=\"color:var(--toxic)\">1. Die Reihenfolge zählt.</b> Zutaten werden nacheinander hinzugefügt, und jede wird vollständig verarbeitet, bevor die nächste hinzukommt. Die gleichen zwei Zutaten in anderer Reihenfolge können ein anderes Ergebnis liefern.",
+      "<b style=\"color:var(--toxic)\">2. Transformationsphase.</b> Jede Zutat bringt Regeln mit wie „Toxic → Euphoric“. Beim Hinzufügen prüft das Spiel die aktuellen Effekte der Mischung gegen diese Regeln und ersetzt passende Effekte — aber nur, wenn der neue Effekt nicht bereits vorhanden ist.",
+      "<b style=\"color:var(--toxic)\">3. Standard-Effekt-Phase.</b> Nach den Transformationen versucht die Zutat, ihren eigenen Standard-Effekt hinzuzufügen (z. B. Cuke → Energizing) — aber nur, wenn die Mischung weniger als 8 Effekte hat und ihn noch nicht besitzt.",
+      "<b style=\"color:var(--toxic)\">4. Die 8-Effekte-Obergrenze.</b> Ein Produkt kann nie mehr als 8 Effekte gleichzeitig haben. Ist die Grenze erreicht, wirken Transformationen weiterhin (sie ersetzen einen Effekt durch einen anderen), aber es werden keine neuen Standard-Effekte mehr hinzugefügt.",
+      "<b style=\"color:var(--toxic)\">5. Endpreis.</b> Verkaufspreis = Basispreis × (1 + Summe aller Preis-Multiplikatoren der Effekte). Kosten = Summe aller Zutatenpreise. Profit = Verkaufspreis − Kosten.",
+      "<b style=\"color:var(--toxic)\">6. Suchtwert.</b> Jeder Effekt trägt außerdem einen Suchtwert bei; der Gesamt-Suchtwert der Mischung ist die Summe aller Effekt-Werte (plus dem Basis-Suchtwert des Produkts bei harten Drogen), gedeckelt bei 100%.",
+    ],
+    ranksIntro: "Dein In-Game-Rang bestimmt, welche Zutaten und Regionen du erreichen kannst. Grün markierte Ränge schalten mindestens eine Zutat oder Region frei.",
+    regionsIntro: "Hyland Point ist in sechs Bezirke unterteilt. Jeder wird bei einem bestimmten Rang freigeschaltet und bringt neue Kunden, Dealer und Lieferanten mit sich.",
+    regionTag: "Region",
+    unlockedAt: "Freigeschaltet bei",
+    propertiesIntro: "Kaufbare Operationsbasen und Geldwäsche-Geschäfte, meist über Ray's Realty erhältlich. Preise sind ungefähre Angaben.",
+    price: "Preis",
+    npcsIntro: "Wichtige anwerbbare Mitarbeiter — regionale Dealer, die deine Ware für dich verkaufen, und Lieferanten, die Zutaten oder Samen verkaufen.",
+    npcTh: ["Name","Rolle","Notizen"],
+    guidesIntro: "Kurze Artikel, die die Referenzseiten zu praktischen Tipps zusammenfassen.",
+    related: "Verwandt",
+    footerLine: "SCHEDULE I WIKI — inoffizielles Fan-Wiki, eine Subdomain von MIXCALC · Inhalte stammen aus der Community und dienen nur zur Orientierung.",
+    footerSupport: "Fragen oder Probleme? Kontaktiere",
+    footHome: "Start", footGuides: "Guides", footCalc: "Mix-Rechner",
+    legalTitle: "Rechtlicher Hinweis",
+    legalText: "Dieses Wiki und der zugehörige Rechner sind inoffizielle Fan-Projekte, die ausschließlich zu Unterhaltungs- und Referenzzwecken rund um das fiktive Videospiel „Schedule I“ erstellt wurden. Alle hier beschriebenen Zutaten, Produkte, Effekte und Mechaniken existieren nur innerhalb der Fiktion dieses Spiels. Die Herstellung, Verbreitung oder der Konsum echter illegaler Drogen ist in den meisten Ländern gesetzlich verboten und kann erheblichen Schaden verursachen. Nichts auf dieser Website stellt reale Informationen zu Drogen, eine Anleitung oder eine Befürwortung illegaler Aktivitäten dar — solltest du oder jemand, den du kennst, mit Substanzkonsum zu kämpfen haben, wende dich bitte an eine lokale Beratungsstelle oder medizinisches Fachpersonal.",
+    footerLegal: "Nur zu Unterhaltungszwecken — bildet eine fiktive Spielwirtschaft ab, keine realen Drogen. Die Herstellung, Verbreitung oder der Konsum echter illegaler Drogen ist gesetzeswidrig und schädlich.",
+  }
+};
 
-function renderNav(){
+const SUPPORT_EMAIL = "Support@schedule-1.de";
+
+/* ============ STATE ============ */
+let LANG = 'en';
+let currentSection = 'home';
+
+const SECTION_IDS = ["home","ingredients","effects","products","mixing","ranks","regions","properties","npcs","guides"];
+
+/* ============ HELPERS ============ */
+function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html!==undefined) e.innerHTML = html; return e; }
+function t(){ return UI[LANG]; }
+
+/* ============ STATIC UI ============ */
+function renderStaticText(){
+  document.getElementById('eyebrowHome').textContent = t().eyebrow;
+  document.getElementById('subtitleText').textContent = t().subtitle;
+  document.getElementById('disclaimerText').innerHTML = '<b>' + t().disclaimerB + '</b> ' + t().disclaimerText;
+  document.getElementById('searchInput').placeholder = t().searchPlaceholder;
+  document.getElementById('footerText').textContent = t().footerLine;
+  document.getElementById('footerLegalText').textContent = t().footerLegal;
+  document.getElementById('footerSupport').innerHTML = t().footerSupport + ' <a href="mailto:' + SUPPORT_EMAIL + '">' + SUPPORT_EMAIL + '</a>';
+  document.getElementById('footHomeBtn').textContent = t().footHome;
+  document.getElementById('footGuidesBtn').textContent = t().footGuides;
+  document.getElementById('footCalcBtn').textContent = t().footCalc;
+  document.getElementById('langEn').classList.toggle('active', LANG === 'en');
+  document.getElementById('langDe').classList.toggle('active', LANG === 'de');
+
   const nav = document.getElementById('mainNav');
   nav.innerHTML = '';
-  SECTIONS.forEach(s => {
+  SECTION_IDS.forEach(id => {
     const btn = document.createElement('button');
-    btn.textContent = s.label;
-    btn.dataset.id = s.id;
-    btn.onclick = () => goTo(s.id);
+    btn.textContent = t().nav[id];
+    btn.dataset.id = id;
+    btn.classList.toggle('active', id === currentSection);
+    btn.onclick = () => goTo(id);
     nav.appendChild(btn);
   });
 }
 
 function goTo(id){
+  currentSection = id;
   document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.id === id));
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + id));
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
 /* ============ PAGE BUILDERS ============ */
-function el(tag, cls, html){ const e = document.createElement(tag); if(cls) e.className = cls; if(html!==undefined) e.innerHTML = html; return e; }
-
 function buildHome(){
+  const T = t();
   const page = el('div','page'); page.id='page-home';
+
+  const legal = el('div','legal-box', '<span class="icon">⚠️</span><div class="body-txt"><div class="title">'+T.legalTitle+'</div><p>'+T.legalText+'</p></div>');
+  page.appendChild(legal);
 
   const stats = el('div','stat-strip');
   const statData = [
-    {num:INGREDIENTS.length, lbl:'Ingredients', go:'ingredients'},
-    {num:Object.keys(EFFECTS).length, lbl:'Effects', go:'effects'},
-    {num:PRODUCTS.length, lbl:'Base Products', go:'products'},
-    {num:RANKS.length, lbl:'Ranks', go:'ranks'},
-    {num:REGIONS.length, lbl:'Regions', go:'regions'},
+    {num:INGREDIENTS.length, lbl:T.statLbl.ingredients, go:'ingredients'},
+    {num:Object.keys(EFFECTS).length, lbl:T.statLbl.effects, go:'effects'},
+    {num:PRODUCTS.length, lbl:T.statLbl.products, go:'products'},
+    {num:RANKS.length, lbl:T.statLbl.ranks, go:'ranks'},
+    {num:REGIONS.length, lbl:T.statLbl.regions, go:'regions'},
   ];
   statData.forEach(s => {
-    const d = el('div','stat', `<div class="num">${s.num}</div><div class="lbl">${s.lbl}</div>`);
+    const d = el('div','stat', '<div class="num">'+s.num+'</div><div class="lbl">'+s.lbl+'</div>');
     d.onclick = () => goTo(s.go);
     stats.appendChild(d);
   });
   page.appendChild(stats);
 
-  page.appendChild(el('div','section-title','Start Here <span class="n">[04]</span>'));
+  page.appendChild(el('div','section-title', T.startHere + ' <span class="n">[04]</span>'));
   const startGrid = el('div','card-grid');
-  const startCards = [
-    {tag:'Core Mechanic', title:'Mixing Basics', desc:'How base products, ingredients and transformation rules combine to create a final mix, and why order matters.', meta:['Read time','4 min'], go:'mixing'},
-    {tag:'Reference', title:'Ingredient List', desc:'All 16 mixing ingredients with cost, default effect and the rank required to unlock each one.', meta:['Entries', INGREDIENTS.length], go:'ingredients'},
-    {tag:'Reference', title:'Effect List', desc:'Every effect in the game with its price multiplier and addictiveness contribution.', meta:['Entries', Object.keys(EFFECTS).length], go:'effects'},
-    {tag:'Progression', title:'Ranks & Unlocks', desc:'From Street Rat I to Kingpin — what each rank unlocks, and where regions fit in.', meta:['Tiers', RANKS.length], go:'ranks'},
-  ];
-  startCards.forEach(c => {
-    const card = el('button','card', `<span class="card-tag">${c.tag}</span><span class="card-title">${c.title}</span><span class="card-desc">${c.desc}</span><span class="card-meta"><span>${c.meta[0]}</span><span class="val">${c.meta[1]}</span></span>`);
+  T.startCards.forEach(c => {
+    const card = el('button','card', '<span class="card-tag">'+c.tag+'</span><span class="card-title">'+c.title+'</span><span class="card-desc">'+c.desc+'</span><span class="card-meta"><span>'+c.metaLbl+'</span><span class="val">'+c.metaVal+'</span></span>');
     card.onclick = () => goTo(c.go);
     startGrid.appendChild(card);
   });
   page.appendChild(startGrid);
 
-  page.appendChild(el('div','section-title','Recent Changes <span class="n">[latest]</span>'));
+  page.appendChild(el('div','section-title', T.recentChanges + ' <span class="n">[latest]</span>'));
   const changes = el('div','change-list');
-  const changeData = [
-    {badge:'new', text:'Ranks & Unlocks — added full table up to Baron V and Kingpin', date:'2 days ago', go:'ranks'},
-    {badge:'edit', text:'Gasoline — corrected transformation rule list', date:'4 days ago', go:'ingredients'},
-    {badge:'edit', text:'Effect List — added addictiveness values for all effects', date:'6 days ago', go:'effects'},
-    {badge:'new', text:'Regions — added unlock ranks for all six districts', date:'1 week ago', go:'regions'},
-    {badge:'edit', text:'Mixing Basics — clarified the 8-effect cap', date:'1 week ago', go:'mixing'},
-  ];
-  changeData.forEach(c => {
-    const row = el('div','change-row', `<span class="badge ${c.badge==='edit'?'edit':''}">${c.badge}</span><button>${c.text}</button><span class="date">${c.date}</span>`);
+  T.changeData.forEach(c => {
+    const row = el('div','change-row', '<span class="badge '+(c.badge!=="new" && c.badge!=="neu" ? "edit":"")+'">'+c.badge+'</span><button>'+c.text+'</button><span class="date">'+c.date+'</span>');
     row.querySelector('button').onclick = () => goTo(c.go);
     changes.appendChild(row);
   });
   page.appendChild(changes);
 
-  const callout = el('div','callout', `
-    <div class="callout-text">
-      <div class="eyebrow">Companion Tool</div>
-      <div class="title">Try the Mix Calculator</div>
-      <p>Plan recipes before you spend real ingredients in-game, or let the profit maximizer build one for your level.</p>
-    </div>`);
-  const btn = el('a','btn-primary','Open Mix Calculator →');
+  const callout = el('div','callout', '<div class="callout-text"><div class="eyebrow">'+T.calloutEyebrow+'</div><div class="title">'+T.calloutTitle+'</div><p>'+T.calloutText+'</p></div>');
+  const btn = el('a','btn-primary', T.openCalc);
   btn.href = 'mixcalc.html';
   callout.appendChild(btn);
   page.appendChild(callout);
@@ -427,20 +640,21 @@ function buildHome(){
 }
 
 function buildIngredients(){
+  const T = t();
   const page = el('div','page'); page.id='page-ingredients';
-  page.appendChild(el('div','section-title','Ingredients <span class="n">['+INGREDIENTS.length+']</span>'));
-  page.appendChild(el('p','page-intro','All 16 mixing ingredients, in unlock order. Each one applies its transformation rules to the mix first, then adds its own default effect if there is room (see Mixing Rules).'));
+  page.appendChild(el('div','section-title', T.nav.ingredients + ' <span class="n">['+INGREDIENTS.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.ingredientsIntro));
   const grid = el('div','card-grid'); grid.style.marginTop='16px';
   INGREDIENTS.forEach(ing => {
     const rank = RANKS.find(r=>r.level===ing.unlock);
     const ruleCount = Object.keys(ing.rules).length;
-    const ruleChips = Object.entries(ing.rules).slice(0,4).map(([k,v])=>`<span class="mini-chip">${k} → ${v}</span>`).join('');
-    const card = el('div','card', `
-      <span class="card-tag">$${ing.cost} · ${rank ? rank.label : 'Unlock N/A'}</span>
-      <span class="card-title">${ing.name}</span>
-      <span class="card-desc">Default effect: <b style="color:var(--toxic)">${ing.def}</b></span>
-      <div class="card-tags-row">${ruleChips}${ruleCount>4?`<span class="mini-chip">+${ruleCount-4} more</span>`:''}</div>
-      <span class="card-meta"><span>Transformation rules</span><span class="val">${ruleCount}</span></span>`);
+    const ruleChips = Object.entries(ing.rules).slice(0,4).map(([k,v])=>'<span class="mini-chip">'+k+' → '+v+'</span>').join('');
+    const card = el('div','card',
+      '<span class="card-tag">$'+ing.cost+' · '+(rank ? rank.label : T.unlockNA)+'</span>'+
+      '<span class="card-title">'+ing.name+'</span>'+
+      '<span class="card-desc">'+T.defaultEffect+' <b style="color:var(--toxic)">'+ing.def+'</b></span>'+
+      '<div class="card-tags-row">'+ruleChips+(ruleCount>4?'<span class="mini-chip">+'+(ruleCount-4)+' '+T.more+'</span>':'')+'</div>'+
+      '<span class="card-meta"><span>'+T.transformationRules+'</span><span class="val">'+ruleCount+'</span></span>');
     grid.appendChild(card);
   });
   page.appendChild(grid);
@@ -448,15 +662,16 @@ function buildIngredients(){
 }
 
 function buildEffects(){
+  const T = t();
   const page = el('div','page'); page.id='page-effects';
-  page.appendChild(el('div','section-title','Effects <span class="n">['+Object.keys(EFFECTS).length+']</span>'));
-  page.appendChild(el('p','page-intro','Every effect that can appear on a mixed product. "Price Multiplier" adds to the base product\'s sell price; "Addictiveness" adds to how likely a customer is to become a repeat buyer.'));
+  page.appendChild(el('div','section-title', T.nav.effects + ' <span class="n">['+Object.keys(EFFECTS).length+']</span>'));
+  page.appendChild(el('p','page-intro', T.effectsIntro));
   const wrap = el('div','table-wrap'); wrap.style.marginTop='16px';
   const table = el('table','data-table');
-  table.innerHTML = '<thead><tr><th>Effect</th><th>Price Multiplier</th><th>Addictiveness</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>'+T.effectTh[0]+'</th><th>'+T.effectTh[1]+'</th><th>'+T.effectTh[2]+'</th></tr></thead>';
   const tbody = el('tbody');
   Object.entries(EFFECTS).sort((a,b)=>b[1].mult-a[1].mult).forEach(([name,v]) => {
-    const row = el('tr','', `<td>${name}</td><td class="mono pos">+${Math.round(v.mult*100)}%</td><td class="mono neg">${Math.round(v.add*100)}%</td>`);
+    const row = el('tr','', '<td>'+name+'</td><td class="mono pos">+'+Math.round(v.mult*100)+'%</td><td class="mono neg">'+Math.round(v.add*100)+'%</td>');
     tbody.appendChild(row);
   });
   table.appendChild(tbody);
@@ -466,16 +681,19 @@ function buildEffects(){
 }
 
 function buildProducts(){
+  const T = t();
   const page = el('div','page'); page.id='page-products';
-  page.appendChild(el('div','section-title','Base Products <span class="n">['+PRODUCTS.length+']</span>'));
-  page.appendChild(el('p','page-intro','The base products you can mix ingredients into. Weed strains start with one effect already applied; the hard drugs start with none but a higher base price.'));
+  page.appendChild(el('div','section-title', T.nav.products + ' <span class="n">['+PRODUCTS.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.productsIntro));
   const grid = el('div','card-grid'); grid.style.marginTop='16px';
   PRODUCTS.forEach(p => {
-    const card = el('div','card', `
-      <span class="card-tag">Base Product</span>
-      <span class="card-title">${p.name}</span>
-      <span class="card-desc">${p.baseEffects.length ? 'Starting effect: <b style="color:var(--toxic)">'+p.baseEffects.join(', ')+'</b>' : 'No starting effect.'}${p.baseAddiction ? ' Base addictiveness: <b style="color:var(--danger)">'+Math.round(p.baseAddiction*100)+'%</b>.' : ''}</span>
-      <span class="card-meta"><span>Base price</span><span class="val">$${p.price}</span></span>`);
+    let desc = p.baseEffects.length ? (T.startingEffect+' <b style="color:var(--toxic)">'+p.baseEffects.join(', ')+'</b>') : T.noStartingEffect;
+    if (p.baseAddiction) desc += ' '+T.baseAddictiveness+' <b style="color:var(--danger)">'+Math.round(p.baseAddiction*100)+'%</b>.';
+    const card = el('div','card',
+      '<span class="card-tag">'+T.baseProductTag+'</span>'+
+      '<span class="card-title">'+p.name+'</span>'+
+      '<span class="card-desc">'+desc+'</span>'+
+      '<span class="card-meta"><span>'+T.basePrice+'</span><span class="val">$'+p.price+'</span></span>');
     grid.appendChild(card);
   });
   page.appendChild(grid);
@@ -483,29 +701,25 @@ function buildProducts(){
 }
 
 function buildMixing(){
+  const T = t();
   const page = el('div','page'); page.id='page-mixing';
-  page.appendChild(el('div','section-title','Mixing Rules'));
+  page.appendChild(el('div','section-title', T.nav.mixing));
   const box = el('div','card', '');
   box.style.cursor = 'default';
-  box.innerHTML = `
-    <span class="card-tag">Core Mechanic</span>
-    <span class="card-title" style="font-size:24px;">How a Mix is Calculated</span>
-    <div style="color:var(--text-dim); font-size:13.5px; line-height:1.8; margin-top:10px;">
-      <p><b style="color:var(--toxic)">1. Order matters.</b> Ingredients are added one at a time, and each one is fully processed before the next is added. Adding the same two ingredients in a different order can produce a different result.</p>
-      <p style="margin-top:10px;"><b style="color:var(--toxic)">2. Transformation phase.</b> Each ingredient carries a set of rules like "Toxic → Euphoric". When it's added, the game checks the mix's current effects against that ingredient's rules and swaps any matching effect for its new one — but only if the new effect isn't already present.</p>
-      <p style="margin-top:10px;"><b style="color:var(--toxic)">3. Default effect phase.</b> After transformations are applied, the ingredient tries to add its own default effect (e.g. Cuke → Energizing) — but only if the mix has fewer than 8 effects and doesn't already have it.</p>
-      <p style="margin-top:10px;"><b style="color:var(--toxic)">4. The 8-effect cap.</b> A product can never hold more than 8 effects at once. Once the cap is hit, transformations still work (they replace one effect with another), but no more default effects get added.</p>
-      <p style="margin-top:10px;"><b style="color:var(--toxic)">5. Final price.</b> Sell price = Base price × (1 + sum of each effect's price multiplier). Cost = sum of every ingredient's price. Profit = Sell price − Cost.</p>
-      <p style="margin-top:10px;"><b style="color:var(--toxic)">6. Addictiveness.</b> Each effect also carries an addictiveness value; the mix's total addictiveness is the sum of all its effects' values (plus the base product's own addictiveness, for hard drugs), capped at 100%.</p>
-    </div>`;
+  let stepsHtml = T.mixingSteps.map(s => '<p style="margin-top:10px;">'+s+'</p>').join('');
+  box.innerHTML =
+    '<span class="card-tag">'+T.mixingCoreMechanic+'</span>'+
+    '<span class="card-title" style="font-size:24px;">'+T.mixingTitle+'</span>'+
+    '<div style="color:var(--text-dim); font-size:13.5px; line-height:1.8; margin-top:10px;">'+stepsHtml+'</div>';
   page.appendChild(box);
   return page;
 }
 
 function buildRanksPage(){
+  const T = t();
   const page = el('div','page'); page.id='page-ranks';
-  page.appendChild(el('div','section-title','Ranks & Unlocks <span class="n">['+RANKS.length+']</span>'));
-  page.appendChild(el('p','page-intro','Your in-game rank gates which ingredients and regions you can access. Ranks marked in green unlock at least one ingredient or region.'));
+  page.appendChild(el('div','section-title', T.nav.ranks + ' <span class="n">['+RANKS.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.ranksIntro));
 
   const groups = {};
   RANKS.forEach(r => { (groups[r.group] = groups[r.group] || []).push(r); });
@@ -518,7 +732,7 @@ function buildRanksPage(){
       const ingUnlocked = INGREDIENTS.filter(i => i.unlock === r.level).map(i=>i.name);
       const regionUnlocked = REGIONS.filter(reg => reg.unlockLabel.toLowerCase().includes(r.label.toLowerCase()));
       const unlocks = [...ingUnlocked, ...regionUnlocked.map(x=>x.name)];
-      const pill = el('span','rank-pill' + (unlocks.length ? ' unlocks' : ''), `Lv ${r.level} · ${r.label}${unlocks.length ? ' — '+unlocks.join(', ') : ''}`);
+      const pill = el('span','rank-pill' + (unlocks.length ? ' unlocks' : ''), 'Lv '+r.level+' · '+r.label+(unlocks.length ? ' — '+unlocks.join(', ') : ''));
       pills.appendChild(pill);
     });
     groupBox.appendChild(pills);
@@ -528,16 +742,17 @@ function buildRanksPage(){
 }
 
 function buildRegions(){
+  const T = t();
   const page = el('div','page'); page.id='page-regions';
-  page.appendChild(el('div','section-title','Regions <span class="n">['+REGIONS.length+']</span>'));
-  page.appendChild(el('p','page-intro','Hyland Point is divided into six districts. Each one unlocks at a specific rank and brings new customers, dealers and suppliers.'));
+  page.appendChild(el('div','section-title', T.nav.regions + ' <span class="n">['+REGIONS.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.regionsIntro));
   const grid = el('div','card-grid'); grid.style.marginTop='16px';
   REGIONS.forEach(r => {
-    const card = el('div','card', `
-      <span class="card-tag">Region</span>
-      <span class="card-title">${r.name}</span>
-      <span class="card-desc">${r.desc}</span>
-      <span class="card-meta"><span>Unlocked at</span><span class="val">${r.unlockLabel}</span></span>`);
+    const card = el('div','card',
+      '<span class="card-tag">'+T.regionTag+'</span>'+
+      '<span class="card-title">'+r.name+'</span>'+
+      '<span class="card-desc">'+(LANG==='de'?r.de:r.en)+'</span>'+
+      '<span class="card-meta"><span>'+T.unlockedAt+'</span><span class="val">'+r.unlockLabel+'</span></span>');
     grid.appendChild(card);
   });
   page.appendChild(grid);
@@ -545,17 +760,17 @@ function buildRegions(){
 }
 
 function buildProperties(){
+  const T = t();
   const page = el('div','page'); page.id='page-properties';
-  page.appendChild(el('div','section-title','Properties <span class="n">['+PROPERTIES.length+']</span>'));
-  page.appendChild(el('p','page-intro','Purchasable bases of operation and money-laundering businesses, mostly sold through Ray\'s Realty. Prices are approximate.'));
-
+  page.appendChild(el('div','section-title', T.nav.properties + ' <span class="n">['+PROPERTIES.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.propertiesIntro));
   const grid = el('div','card-grid'); grid.style.marginTop='16px';
-  PROPERTIES.forEach((p, i) => {
-    const card = el('div','card', `
-      <span class="card-tag">${p.region}</span>
-      <span class="card-title">${p.name}</span>
-      <span class="card-desc">${p.desc}</span>
-      <span class="card-meta"><span>Price</span><span class="val">${p.price}</span></span>`);
+  PROPERTIES.forEach(p => {
+    const card = el('div','card',
+      '<span class="card-tag">'+p.region+'</span>'+
+      '<span class="card-title">'+p.name+'</span>'+
+      '<span class="card-desc">'+(LANG==='de'?p.de:p.en)+'</span>'+
+      '<span class="card-meta"><span>'+T.price+'</span><span class="val">'+p.price+'</span></span>');
     grid.appendChild(card);
   });
   page.appendChild(grid);
@@ -563,15 +778,16 @@ function buildProperties(){
 }
 
 function buildNpcs(){
+  const T = t();
   const page = el('div','page'); page.id='page-npcs';
-  page.appendChild(el('div','section-title','NPCs <span class="n">['+NPCS.length+']</span>'));
-  page.appendChild(el('p','page-intro','Key recruitable staff — regional dealers who sell your product for you, and suppliers who sell ingredients or seeds.'));
+  page.appendChild(el('div','section-title', T.nav.npcs + ' <span class="n">['+NPCS.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.npcsIntro));
   const wrap = el('div','table-wrap'); wrap.style.marginTop='16px';
   const table = el('table','data-table');
-  table.innerHTML = '<thead><tr><th>Name</th><th>Role</th><th>Notes</th></tr></thead>';
+  table.innerHTML = '<thead><tr><th>'+T.npcTh[0]+'</th><th>'+T.npcTh[1]+'</th><th>'+T.npcTh[2]+'</th></tr></thead>';
   const tbody = el('tbody');
   NPCS.forEach(n => {
-    tbody.appendChild(el('tr','', `<td><b>${n.name}</b></td><td class="mono">${n.role}</td><td style="color:var(--text-dim)">${n.desc}</td>`));
+    tbody.appendChild(el('tr','', '<td><b>'+n.name+'</b></td><td class="mono">'+(LANG==='de'?n.roleDe:n.roleEn)+'</td><td style="color:var(--text-dim)">'+(LANG==='de'?n.de:n.en)+'</td>'));
   });
   table.appendChild(tbody);
   wrap.appendChild(table);
@@ -580,12 +796,17 @@ function buildNpcs(){
 }
 
 function buildGuides(){
+  const T = t();
   const page = el('div','page'); page.id='page-guides';
-  page.appendChild(el('div','section-title','Guides <span class="n">['+GUIDES.length+']</span>'));
-  page.appendChild(el('p','page-intro','Short write-ups that pull together the reference pages into practical advice.'));
+  page.appendChild(el('div','section-title', T.nav.guides + ' <span class="n">['+GUIDES.length+']</span>'));
+  page.appendChild(el('p','page-intro', T.guidesIntro));
   const grid = el('div','card-grid'); grid.style.marginTop='16px';
   GUIDES.forEach(g => {
-    const card = el('button','card', `<span class="card-tag">${g.tag}</span><span class="card-title">${g.title}</span><span class="card-desc">${g.desc}</span><span class="card-meta"><span>Related</span><span class="val">${SECTIONS.find(s=>s.id===g.target).label}</span></span>`);
+    const card = el('button','card',
+      '<span class="card-tag">'+(LANG==='de'?g.tagDe:g.tagEn)+'</span>'+
+      '<span class="card-title">'+(LANG==='de'?g.titleDe:g.titleEn)+'</span>'+
+      '<span class="card-desc">'+(LANG==='de'?g.de:g.en)+'</span>'+
+      '<span class="card-meta"><span>'+T.related+'</span><span class="val">'+T.nav[g.target]+'</span></span>');
     card.onclick = () => goTo(g.target);
     grid.appendChild(card);
   });
@@ -612,14 +833,15 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
   const hint = document.getElementById('searchHint');
   if (!q){ hint.innerHTML = ''; return; }
   const matches = SEARCH_INDEX.filter(x => x.name.toLowerCase().includes(q)).slice(0,8);
-  if (matches.length === 0){ hint.innerHTML = 'No matches.'; return; }
-  hint.innerHTML = 'Jump to: ' + matches.map(m => `<button style="background:none;border:none;color:var(--toxic);font-family:var(--mono);font-size:10.5px;cursor:pointer;text-decoration:underline;margin-right:10px;" onclick="goTo('${m.go}')">${m.name} <span style="color:var(--text-dim)">(${m.type})</span></button>`).join('');
+  if (matches.length === 0){ hint.innerHTML = t().noMatches; return; }
+  hint.innerHTML = t().jumpTo + ' ' + matches.map(m => '<button style="background:none;border:none;color:var(--toxic);font-family:var(--mono);font-size:10.5px;cursor:pointer;text-decoration:underline;margin-right:10px;" onclick="goTo(\'' + m.go + '\')">' + m.name + ' <span style="color:var(--text-dim)">(' + m.type + ')</span></button>').join('');
 });
 
-/* ============ INIT ============ */
-function init(){
-  renderNav();
+/* ============ RENDER ALL ============ */
+function renderAll(){
+  renderStaticText();
   const main = document.getElementById('mainContent');
+  main.innerHTML = '';
   main.appendChild(buildHome());
   main.appendChild(buildIngredients());
   main.appendChild(buildEffects());
@@ -630,9 +852,22 @@ function init(){
   main.appendChild(buildProperties());
   main.appendChild(buildNpcs());
   main.appendChild(buildGuides());
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + currentSection));
+  document.querySelectorAll('#mainNav button').forEach(b => b.classList.toggle('active', b.dataset.id === currentSection));
+}
+
+function setLang(lang){
+  LANG = lang;
+  renderAll();
+}
+
+/* ============ INIT ============ */
+function init(){
   document.getElementById('eyebrowHome').onclick = () => goTo('home');
   document.getElementById('titleHome').onclick = () => goTo('home');
-  goTo('home');
+  document.getElementById('langEn').onclick = () => setLang('en');
+  document.getElementById('langDe').onclick = () => setLang('de');
+  renderAll();
 }
 init();
 </script>
